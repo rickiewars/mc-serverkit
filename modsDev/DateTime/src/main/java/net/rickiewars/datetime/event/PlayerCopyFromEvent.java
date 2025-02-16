@@ -21,7 +21,7 @@ public class PlayerCopyFromEvent implements ServerPlayerEvents.CopyFrom {
         IEntityDataSaver newData = (IEntityDataSaver) newPlayer;
 
         LastLoginDate.set(newData, LastLoginDate.get(oldData));
-        newData.getPersistentData().putInt("loginStreak", oldData.getPersistentData().getInt("loginStreak"));
-        newData.getPersistentData().putInt("bestLoginStreak", oldData.getPersistentData().getInt("bestLoginStreak"));
+        newData.datetime_getPersistentData().putInt("loginStreak", oldData.datetime_getPersistentData().getInt("loginStreak"));
+        newData.datetime_getPersistentData().putInt("bestLoginStreak", oldData.datetime_getPersistentData().getInt("bestLoginStreak"));
     }
 }

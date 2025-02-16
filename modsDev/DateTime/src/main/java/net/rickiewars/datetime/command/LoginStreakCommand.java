@@ -16,47 +16,30 @@ import net.rickiewars.datetime.util.IEntityDataSaver;
 public class LoginStreakCommand {
     public static void register(CommandDispatcher<ServerCommandSource> serverCommandSourceCommandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         serverCommandSourceCommandDispatcher.register(CommandManager.literal("loginStreak")
-                .executes(LoginStreakCommand::getStreak)
-                .then(CommandManager.literal("help")
-                        .executes(context -> {
-                            Log.source(context, LoginStreakModule.getHelpMessage());
-                            return 1;
-                        })
-                ).then(CommandManager.literal("process")
-                        .requires(source -> source.hasPermissionLevel(4))
-                        .executes(LoginStreakCommand::process)
-                ).then(CommandManager.literal("quiet")
-                        .requires(source -> source.hasPermissionLevel(4))
-                        .executes(LoginStreakCommand::getStreakQuiet)
-                ).then(CommandManager.literal("set")
-                        .requires(source -> source.hasPermissionLevel(4))
-                        .then(CommandManager.argument("streak", IntegerArgumentType.integer())
-                                .executes(LoginStreakCommand::setStreak)
-                        )
+            .executes(LoginStreakCommand::getStreak)
+            .then(CommandManager.literal("help")
+                .executes(context -> {
+                    Log.source(context, LoginStreakModule.getHelpMessage());
+                    return 1;
+                })
+            ).then(CommandManager.literal("set")
+                .requires(source -> source.hasPermissionLevel(4))
+                .then(CommandManager.argument("streak", IntegerArgumentType.integer())
+                    .executes(LoginStreakCommand::setStreak)
                 )
+            )
         );
     }
 
-    public static int process(CommandContext<ServerCommandSource> context) {
-        ServerPlayerEntity player = context.getSource().getPlayer();
-        return LoginStreakModule.process(player);
-    }
-
     public static int getStreak(CommandContext<ServerCommandSource> context) {
-        int loginStreak = getStreakQuiet(context);
-        if (loginStreak == 0) {
-            Log.source(context, "Error: User not found.");
-        }
-        Log.source(context, "You have a login streak of " + loginStreak + " days.");
-        return loginStreak;
-    }
-
-    public static int getStreakQuiet(CommandContext<ServerCommandSource> context) {
         ServerPlayerEntity player = context.getSource().getPlayer();
         if (player == null) {
+            Log.source(context, "Error: User not found.");
             return 0;
         }
-        return LoginStreak.get((IEntityDataSaver)player);
+        int loginStreak = LoginStreak.get((IEntityDataSaver) player);
+        Log.source(context, "You have a login streak of " + loginStreak + " days.");
+        return loginStreak;
     }
 
     // Should only be used for debugging purposes or to correct a failure

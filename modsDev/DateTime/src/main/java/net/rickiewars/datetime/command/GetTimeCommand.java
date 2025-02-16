@@ -8,6 +8,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.*;
 import net.minecraft.server.command.CommandManager;
@@ -19,147 +20,66 @@ import net.rickiewars.datetime.util.IEntityDataSaver;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GetTimeCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> serverCommandSourceCommandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
-        serverCommandSourceCommandDispatcher.register(CommandManager.literal("rtc")
-                .executes(GetTimeCommand::help)
-                .then(CommandManager.literal("test")
-                        .executes(GetTimeCommand::testDbg))
-                .then(CommandManager.literal("get")
-                        .executes(GetTimeCommand::dateTime)
-                        .then(CommandManager.literal("date").executes(GetTimeCommand::date))
-                        .then(CommandManager.literal("time").executes(GetTimeCommand::time))
-                        .then(CommandManager.literal("year").executes(GetTimeCommand::year))
-                        .then(CommandManager.literal("month").executes(GetTimeCommand::month)
-                                .then(CommandManager.literal("number").executes(GetTimeCommand::month))
-                                .then(CommandManager.literal("full").executes(GetTimeCommand::monthFull))
-                                .then(CommandManager.literal("short").executes(GetTimeCommand::monthShort))
-                        )
-                        .then(CommandManager.literal("week").executes(GetTimeCommand::week))
-                        .then(CommandManager.literal("day").executes(GetTimeCommand::day)
-                                .then(CommandManager.literal("of")
-                                        .then(CommandManager.literal("week").executes(GetTimeCommand::weekDay)
-                                                .then(CommandManager.literal("number").executes(GetTimeCommand::weekDay))
-                                                .then(CommandManager.literal("full").executes(GetTimeCommand::weekDayFull))
-                                                .then(CommandManager.literal("short").executes(GetTimeCommand::weekDayShort))
-                                        )
-                                        .then(CommandManager.literal("month").executes(GetTimeCommand::day))
-                                        .then(CommandManager.literal("year").executes(GetTimeCommand::yearDay))
-                        ))
-                        .then(CommandManager.literal("hour").executes(GetTimeCommand::hour))
-                        .then(CommandManager.literal("minute").executes(GetTimeCommand::minute))
-                        .then(CommandManager.literal("second").executes(GetTimeCommand::second))
-                )
-        );
+    private static final Map<String, String> TIME_FORMATS = new HashMap<>();
+
+    static {
+        TIME_FORMATS.put("datetime", "yyyy-MM-dd HH:mm:ss");
+        TIME_FORMATS.put("date", "yyyy-MM-dd");
+        TIME_FORMATS.put("time", "HH:mm:ss");
+        TIME_FORMATS.put("timezone", "z");
+        TIME_FORMATS.put("year", "yyyy");
+        TIME_FORMATS.put("month", "MM");
+        TIME_FORMATS.put("month_full", "MMMM");
+        TIME_FORMATS.put("month_short", "MMM");
+        TIME_FORMATS.put("week", "ww");
+        TIME_FORMATS.put("day", "dd");
+        TIME_FORMATS.put("day_of_year", "D");
+        TIME_FORMATS.put("weekday", "u");
+        TIME_FORMATS.put("weekday_full", "EEEE");
+        TIME_FORMATS.put("weekday_short", "EE");
+        TIME_FORMATS.put("hour", "HH");
+        TIME_FORMATS.put("minute", "mm");
+        TIME_FORMATS.put("second", "ss");
     }
 
-    private static String getFormattedTime(String format) {
-        Date currentDate = Calendar.getInstance().getTime();
-        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
-        return dateFormat.format(currentDate);
+    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
+        var rtcCommand = CommandManager.literal("rtc")
+            .executes(GetTimeCommand::help);
+
+        var getCommand = CommandManager.literal("get")
+            .executes(ctx -> sendFormattedTime(ctx, "datetime"));
+
+        TIME_FORMATS.forEach((key, format) -> {
+            getCommand.then(CommandManager.literal(key)
+                .executes(ctx -> sendFormattedTime(ctx, key)));
+        });
+
+        rtcCommand.then(getCommand);
+        dispatcher.register(rtcCommand);
     }
 
-    private static int testDbg(CommandContext<ServerCommandSource> context) {
-        // Print the count of logins in the loginStreak NBT tag
-        IEntityDataSaver player = (IEntityDataSaver)context.getSource().getPlayer();
-        int loginStreak = player.getPersistentData().getInt("loginStreak");
-        context.getSource().sendFeedback(() -> Text.literal("loginStreak: " + loginStreak), false);
-        return 1;
-    }
-
-    private static int dateTime(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(() -> Text.literal(getFormattedTime("yyyy-MM-dd HH:mm:ss")), false);
-        return 1;
-    }
-
-    private static int date(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(() -> Text.literal(getFormattedTime("yyyy-MM-dd")), false);
-        return 1;
-    }
-
-    private static int time(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(() -> Text.literal(getFormattedTime("HH:mm:ss")), false);
-        return 1;
-    }
-
-    private static int year(CommandContext<ServerCommandSource> context) {
-        String year = getFormattedTime("yyyy");
-        context.getSource().sendFeedback(() -> Text.literal(year), false);
-        return Integer.parseInt(year);
-    }
-
-    private static int month(CommandContext<ServerCommandSource> context) {
-        String month = getFormattedTime("MM");
-        context.getSource().sendFeedback(() -> Text.literal(month), false);
-        return Integer.parseInt(month);
-    }
-
-    private static int monthFull(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(() -> Text.literal(getFormattedTime("MMMM")), false);
-        return 1;
-    }
-
-    private static int monthShort(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(() -> Text.literal(getFormattedTime("MMM")), false);
-        return 1;
-    }
-
-    private static int week(CommandContext<ServerCommandSource> context) {
-        String week = getFormattedTime("ww");
-        context.getSource().sendFeedback(() -> Text.literal(week), false);
-        return Integer.parseInt(week);
-    }
-
-    private static int day(CommandContext<ServerCommandSource> context) {
-        String day = getFormattedTime("dd");
-        context.getSource().sendFeedback(() -> Text.literal(day), false);
-        return Integer.parseInt(day);
-    }
-
-    private static int yearDay(CommandContext<ServerCommandSource> context) {
-        String day = getFormattedTime("D");
-        context.getSource().sendFeedback(() -> Text.literal(day), false);
-        return Integer.parseInt(day);
-    }
-
-    private static int weekDay(CommandContext<ServerCommandSource> context) {
-        String day = getFormattedTime("u");
-        context.getSource().sendFeedback(() -> Text.literal(day), false);
-        return Integer.parseInt(day);
-    }
-
-    private static int weekDayFull(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(() -> Text.literal(getFormattedTime("EEEE")), false);
-        return 1;
-    }
-
-    private static int weekDayShort(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(() -> Text.literal(getFormattedTime("EE")), false);
-        return 1;
-    }
-
-    private static int hour(CommandContext<ServerCommandSource> context) {
-        String hour = getFormattedTime("HH");
-        context.getSource().sendFeedback(() -> Text.literal(hour), false);
-        return Integer.parseInt(hour);
-    }
-
-    private static int minute(CommandContext<ServerCommandSource> context) {
-        String minute = getFormattedTime("mm");
-        context.getSource().sendFeedback(() -> Text.literal(minute), false);
-        return Integer.parseInt(minute);
-    }
-
-    private static int second(CommandContext<ServerCommandSource> context) {
-        String second = getFormattedTime("ss");
-        context.getSource().sendFeedback(() -> Text.literal(second), false);
-        return Integer.parseInt(second);
+    private static int sendFormattedTime(CommandContext<ServerCommandSource> context, String key) {
+        String format = TIME_FORMATS.get(key);
+        if (format != null) {
+            String formattedTime = new SimpleDateFormat(format).format(new Date());
+            context.getSource().sendFeedback(() -> Text.literal(formattedTime), false);
+            try {
+                return Integer.parseInt(formattedTime);
+            } catch (NumberFormatException e) {
+                return 1;
+            }
+        }
+        return 0;
     }
 
     private static int help(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(() -> Text.literal("Usage: /rtc get [date|time|year|month|week|day|hour|minute|second]"), false);
+        context.getSource().sendFeedback(() -> Text.literal("Usage: /rtc get ["
+            + String.join("|", TIME_FORMATS.keySet()) + "]"), false);
         return 1;
     }
 

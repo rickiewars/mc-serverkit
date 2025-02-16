@@ -6,15 +6,15 @@ public class LoginStreak {
     final static private String nbtTag = "LoginStreak";
 
     public static int get(IEntityDataSaver player) {
-        return player.getPersistentData().getInt(nbtTag);
+        return player.datetime_getPersistentData().getInt(nbtTag);
     }
 
     public static void set(IEntityDataSaver player, int streak) {
-        player.getPersistentData().putInt(nbtTag, streak);
+        player.datetime_getPersistentData().putInt(nbtTag, streak);
     }
 
     public static void remove(IEntityDataSaver player) {
-        player.getPersistentData().remove(nbtTag);
+        player.datetime_getPersistentData().remove(nbtTag);
     }
 
     public static void increment(IEntityDataSaver player) {

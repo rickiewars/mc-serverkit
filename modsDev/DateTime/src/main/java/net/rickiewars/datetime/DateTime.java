@@ -1,7 +1,7 @@
 package net.rickiewars.datetime;
 
 import net.fabricmc.api.ModInitializer;
-
+import net.minecraft.server.MinecraftServer;
 import net.rickiewars.datetime.util.ModRegistries;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +13,8 @@ public class DateTime implements ModInitializer {
 	// That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+	private static MinecraftServer mcServer = null;
+
 	@Override
 	public void onInitialize() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
@@ -22,5 +24,13 @@ public class DateTime implements ModInitializer {
 		LOGGER.info("DateTime is initializing!");
 
 		ModRegistries.register();
+	}
+
+	public static void initServer(MinecraftServer server) {
+		mcServer = server;
+	}
+
+	public static MinecraftServer getServer() {
+		return mcServer;
 	}
 }
