@@ -30,7 +30,7 @@ public class LoginStreakCommand {
         );
     }
 
-    public static int getStreak(CommandContext<ServerCommandSource> context) {
+    private static int getStreak(CommandContext<ServerCommandSource> context) {
         ServerPlayerEntity player = context.getSource().getPlayer();
         if (player == null) {
             Log.source(context, "Error: User not found.");
@@ -42,7 +42,7 @@ public class LoginStreakCommand {
     }
 
     // Should only be used for debugging purposes or to correct a failure
-    public static int setStreak(CommandContext<ServerCommandSource> context) {
+    private static int setStreak(CommandContext<ServerCommandSource> context) {
         final int streak = IntegerArgumentType.getInteger(context, "streak");
         ServerPlayerEntity player = context.getSource().getPlayer();
         LoginStreak.set((IEntityDataSaver) player, streak);

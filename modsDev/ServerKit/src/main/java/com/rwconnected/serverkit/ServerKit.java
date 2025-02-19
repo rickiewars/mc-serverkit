@@ -1,5 +1,7 @@
 package com.rwconnected.serverkit;
 
+import com.rwconnected.serverkit.config.Config;
+import com.rwconnected.serverkit.config.ConfigManager;
 import com.rwconnected.serverkit.util.ModRegistries;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.server.MinecraftServer;
@@ -17,12 +19,8 @@ public class ServerKit implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
-
 		LOGGER.info("RWConnected - ServerKit is initializing!");
-
+		ConfigManager.loadConfig();
 		ModRegistries.register();
 	}
 
