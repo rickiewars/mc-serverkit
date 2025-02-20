@@ -20,6 +20,9 @@ repositories {
 	maven {
 		url = 'https://cursemaven.com'
 	}
+
+	// Mods from Patbox
+	maven { url = 'https://maven.nucleoid.xyz' }
 }
 
 loom {
@@ -42,6 +45,9 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+	// Adds compatibility with unmodified clients. Technically optional, but you'll want it when running your server.
+	modImplementation include("eu.pb4:polymer-core:${project.polymer_version}")
 
 	// Used for unit tests
 	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
