@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.6.11'
+	id 'fabric-loom' version '1.10-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -18,7 +18,7 @@ repositories {
 	// for more information about repositories.
 
 	maven {
-		url 'https://cursemaven.com'
+		url = 'https://cursemaven.com'
 	}
 }
 
@@ -44,9 +44,9 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Used for unit tests
-//	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}" // Not working atm so used the original junit
-	testImplementation "org.junit.jupiter:junit-jupiter:${project.junit_version}" // Can be deleted once fabric-loader-junit works
+	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
 	testImplementation "org.junit.platform:junit-platform-suite:${project.junit_platform_version}"
+	testImplementation "org.junit.platform:junit-platform-suite-engine:${project.junit_platform_version}"
 
 	implementation "com.ezylang:EvalEx:${project.evalex_version}"
 }
