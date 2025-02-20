@@ -6,6 +6,7 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -15,9 +16,9 @@ import java.util.Map;
 public class GetTimeCommand {
 
     private static final Map<String, String> TIME_FORMATS = new HashMap<>();
+    private static final String DEFAULT_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     static {
-        TIME_FORMATS.put("serverkit", "yyyy-MM-dd HH:mm:ss");
         TIME_FORMATS.put("date", "yyyy-MM-dd");
         TIME_FORMATS.put("time", "HH:mm:ss");
         TIME_FORMATS.put("timezone", "z");
@@ -41,9 +42,10 @@ public class GetTimeCommand {
             .executes(GetTimeCommand::help);
 
         var getCommand = CommandManager.literal("get")
-            .executes(ctx -> sendFormattedTime(ctx, "serverkit"));
+            .executes(ctx -> sendFormattedTime(ctx, null));
 
         TIME_FORMATS.forEach((key, format) -> {
+            if (key.equals("serverkit")) return;
             getCommand.then(CommandManager.literal(key)
                 .executes(ctx -> sendFormattedTime(ctx, key)));
         });
@@ -52,8 +54,8 @@ public class GetTimeCommand {
         dispatcher.register(rtcCommand);
     }
 
-    private static int sendFormattedTime(CommandContext<ServerCommandSource> context, String key) {
-        String format = TIME_FORMATS.get(key);
+    private static int sendFormattedTime(CommandContext<ServerCommandSource> context, @Nullable String key) {
+        String format = key == null ? DEFAULT_FORMAT : TIME_FORMATS.get(key);
         if (format != null) {
             String formattedTime = new SimpleDateFormat(format).format(new Date());
             context.getSource().sendFeedback(() -> Text.literal(formattedTime), false);
