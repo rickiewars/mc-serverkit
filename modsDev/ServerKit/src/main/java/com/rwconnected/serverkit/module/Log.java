@@ -7,19 +7,20 @@ import net.minecraft.text.Text;
 
 public class Log {
 
-    private enum logLevel {
+    private enum LogLevel {
         DEBUG,
         INFO,
         WARNING,
         ERROR,
         NONE
     }
-    private static final logLevel sendFeedbackTo = logLevel.INFO;
+    private static final LogLevel logLevel = LogLevel.INFO;
 
     public static void debug(String message) {
-        switch (sendFeedbackTo) {
+        switch (logLevel) {
             case DEBUG:
                 ServerKit.LOGGER.debug(message);
+                break;
             case INFO:
             case ERROR:
             case NONE:
@@ -29,7 +30,7 @@ public class Log {
     }
 
     public static void info(String message) {
-        switch (sendFeedbackTo) {
+        switch (logLevel) {
             case DEBUG:
             case INFO:
                 ServerKit.LOGGER.info(message);
@@ -43,7 +44,7 @@ public class Log {
     }
 
     public static void warning(String message) {
-        switch (sendFeedbackTo) {
+        switch (logLevel) {
             case DEBUG:
             case INFO:
             case WARNING:
@@ -57,7 +58,7 @@ public class Log {
     }
 
     public static void error(String message) {
-        switch (sendFeedbackTo) {
+        switch (logLevel) {
             case DEBUG:
             case INFO:
             case WARNING:

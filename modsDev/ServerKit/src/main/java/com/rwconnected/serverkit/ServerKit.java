@@ -1,6 +1,5 @@
 package com.rwconnected.serverkit;
 
-import com.rwconnected.serverkit.config.Config;
 import com.rwconnected.serverkit.config.ConfigManager;
 import com.rwconnected.serverkit.util.ModRegistries;
 import net.fabricmc.api.ModInitializer;
