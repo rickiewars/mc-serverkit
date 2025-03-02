@@ -39,17 +39,38 @@ public class Config {
         instance = config;
     }
 
+    /**
+     * Login streak configuration
+     *
+     * @param milestones List of recurring and non-recurring milestones
+     * @param streakLostMessage Message to display when a streak is lost
+     * @param welcomeMessage Message to display when a player first joins or runs the help command
+     */
     public record LoginStreakConfig(
-        List<LoginStreakMilestone> milestones
+        List<LoginStreakMilestone> milestones,
+        String streakLostMessage,
+        String welcomeMessage
     ){
-        public LoginStreakConfig(List<LoginStreakMilestone> milestones) {
-            this.milestones = milestones != null ? milestones : List.of();
+        public LoginStreakConfig(List<LoginStreakMilestone> milestones, String streakLostMessage, String welcomeMessage) {
+            this.milestones = milestones != null ? milestones : defaultMilestones();
+            this.streakLostMessage = streakLostMessage != null ? streakLostMessage : defaultStreakLostMessage();
+            this.welcomeMessage = welcomeMessage != null ? welcomeMessage : defaultWelcomeMessage();
         }
         public LoginStreakConfig() {
-            this(List.of(
-                new LoginStreakMilestone(1, 100,
-                    "Welcome back! You've maintained a login streak for {streak; one day; %d days}! Here's a reward of {reward/100; %.2f} credits."
-                    , true),
+            this(null, null, null);
+        }
+
+        private static LoginStreakMilestone defaultDailyMilestone() {
+            return new LoginStreakMilestone(
+                1,
+                100,
+                "Welcome back! You've maintained a login streak for {streak; one day; %d days}! Here's a reward of {reward/100; %.2f} credits.",
+                true
+            );
+        }
+
+        private static List<LoginStreakMilestone> defaultMilestones() {
+            return List.of(
                 new LoginStreakMilestone(7, 200,
                     "You've managed to login every day for {streak/7; a whole week; %d weeks}! That means you've earned an additional reward of {reward/100; %.2f} credits.",
                     true),
@@ -59,8 +80,30 @@ public class Config {
                 new LoginStreakMilestone(365, 5000,
                     "Congratulations on maintaining a login streak for {streak/365; a whole year; %d years}! For this amazing achievement, we're rewarding you with {reward/100; %.2f} credits.",
                     true)
-            ));
+            );
         }
+
+        private static String defaultStreakLostMessage() {
+            return "Your login streak of {streak; one day; %d days} has been lost.";
+        }
+
+        private static String defaultWelcomeMessage() {
+            return """
+                    In this server, you can maintain a login streak by logging in every day.
+                    If you miss a day, your streak will reset to 1.
+                    You can check your login streak with the command /loginStreak
+                    """;
+        }
+
+        public String parseStreakLostMessage(int streak) {
+            try {
+                return TemplatingEngine.processTemplate(streakLostMessage, Map.of("streak", BigDecimal.valueOf(streak)));
+            } catch (Exception e) {
+                ServerKit.LOGGER.error("Failed to parse streak lost message template: " + streakLostMessage, e);
+                return streakLostMessage;
+            }
+        }
+
         public record LoginStreakMilestone(int days, int reward, String message, boolean periodic){
 
             // TODO: Make message an array so that a message can have multiple lines

@@ -7,6 +7,7 @@ import org.junit.platform.suite.api.Suite;
 @Suite
 @SelectPackages({
     "com.rwconnected.serverkit.util",
+    "com.rwconnected.serverkit.service",
 })
 public class ServerKitTest {
     @BeforeAll
