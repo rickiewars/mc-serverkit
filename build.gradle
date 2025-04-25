@@ -67,6 +67,25 @@ processResources {
 
 test {
 	useJUnitPlatform()
+
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full" // So you get full stacktraces, not truncated garbage
+		showExceptions true
+		showCauses true
+		showStackTraces true
+		showStandardStreams true // Captures System.out and System.err during tests
+	}
+
+	afterTest { descriptor, result ->
+		logger.lifecycle("Duration: ${result.endTime - result.startTime} ms")
+	}
+
+	afterSuite { desc, result ->
+		if (!desc.parent && result.testCount == 0) {
+			throw new GradleException("No tests were executed! Check your test configuration.")
+		}
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {
