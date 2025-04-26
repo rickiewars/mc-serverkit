@@ -37,12 +37,12 @@ public class Player implements IPlayer {
 
     @Override
     public INumericStorage<Integer> getLoginStreakStorage() {
-        return new LoginStreakRecordStorage(player);
+        return new LoginStreakStorage(player);
     }
 
     @Override
     public INumericStorage<Integer> getLoginStreakRecordStorage() {
-        return new LoginStreakStorage(player);
+        return new LoginStreakRecordStorage(player);
     }
 
     @Override
