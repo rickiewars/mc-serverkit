@@ -9,7 +9,7 @@ public class NbtStringStorage extends NbtStorage<String> {
 
     @Override
     public String get() {
-        return this.entity.serverkit_getPersistentData().getString(this.key);
+        return this.entity.serverkit_getPersistentData().getString(this.key, this.defaultValue);
     }
 
     @Override

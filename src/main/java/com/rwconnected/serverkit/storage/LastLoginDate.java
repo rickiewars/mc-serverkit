@@ -6,7 +6,7 @@ public class LastLoginDate {
 
     final static private String nbtTag = "lastLoginDate";
     public static String get(IEntityDataSaver player) {
-        return player.serverkit_getPersistentData().getString(nbtTag);
+        return player.serverkit_getPersistentData().getString(nbtTag, "");
     }
 
     public static void set(IEntityDataSaver player, String date) {

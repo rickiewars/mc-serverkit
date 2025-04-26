@@ -13,6 +13,7 @@ before_script:
   - export GRADLE_USER_HOME=$(pwd)/.gradle
   - chmod +x gradlew || true  # Ensure Gradle wrapper is executable
 
+# Build also runs tests
 build:
   stage: build
   script:
@@ -24,11 +25,6 @@ build:
   only:
     - branches
     - tags
-
-test:
-  stage: test
-  script:
-    - ./gradlew test
 
 release:
   stage: release

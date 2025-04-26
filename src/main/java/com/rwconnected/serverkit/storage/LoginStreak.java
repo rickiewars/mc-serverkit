@@ -6,7 +6,7 @@ public class LoginStreak {
     final static private String nbtTag = "LoginStreak";
 
     public static int get(IEntityDataSaver player) {
-        return player.serverkit_getPersistentData().getInt(nbtTag);
+        return player.serverkit_getPersistentData().getInt(nbtTag, 0);
     }
 
     public static void set(IEntityDataSaver player, int streak) {

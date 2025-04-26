@@ -7,7 +7,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public abstract class NbtStorage<T> implements IStorage<T> {
     protected final IEntityDataSaver entity;
     protected final String key;
-    private final T defaultValue;
+    protected final T defaultValue;
 
     protected NbtStorage(IEntityDataSaver entityDataSaver, String key, T defaultValue) {
         this.entity = entityDataSaver;

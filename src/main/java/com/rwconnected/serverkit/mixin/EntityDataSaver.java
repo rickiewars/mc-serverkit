@@ -32,8 +32,11 @@ public abstract class EntityDataSaver implements IEntityDataSaver {
 
     @Inject(method = "readNbt", at = @At("HEAD"))
     protected void injectReadMethod(NbtCompound nbt, CallbackInfo info) {
-        if (nbt.contains("serverkit.rwc_data", 10)) {
-            persistentData = nbt.getCompound("serverkit.rwc_data");
+        // Not sure if I need to return an empty NbtCompound or null.
+        // so I keep the check in place to maintain the original behavior.
+        // Maybe persistentData could just become an optional.
+        if (nbt.contains("serverkit.rwc_data")) {
+            persistentData = nbt.getCompoundOrEmpty("serverkit.rwc_data");
         }
     }
 }

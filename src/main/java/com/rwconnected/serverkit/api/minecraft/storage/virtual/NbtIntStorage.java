@@ -9,7 +9,7 @@ public class NbtIntStorage extends NbtStorage<Integer> implements INumericStorag
 
     @Override
     public Integer get() {
-        return this.entity.serverkit_getPersistentData().getInt(this.key);
+        return this.entity.serverkit_getPersistentData().getInt(this.key, this.defaultValue);
     }
 
     @Override
