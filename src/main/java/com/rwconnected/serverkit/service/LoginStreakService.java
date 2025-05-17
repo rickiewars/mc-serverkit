@@ -28,9 +28,40 @@ public class LoginStreakService {
     }
 
     public void process(IPlayer player) {
-        int currentStreak = player.getLoginStreakStorage().get();
+        int currentStreak = getStreak(player);
+        int currentRecord = getRecord(player);
         StreakResult result = processStreak(player);
-        processFeedback(player, result, currentStreak);
+        processFeedback(player, result, currentStreak, currentRecord);
+    }
+
+    public int getStreak(IPlayer player) {
+        return player.getLoginStreakStorage().get();
+    }
+
+    public int getRecord(IPlayer player) {
+        return player.getLoginStreakRecordStorage().get();
+    }
+
+    public int setStreak(IPlayer player, int streak) {
+        if (streak < 0) {
+            streak = 0;
+        }
+        player.getLoginStreakStorage().set(streak);
+        updateRecord(player);
+        return streak;
+    }
+
+    public int setRecord(IPlayer player, int record) {
+        if (record < 0) {
+            record = 0;
+        }
+        int currentStreak = getStreak(player);
+        if (record < currentStreak) {
+            Log.warning("LoginStreakService::setRecord() -> The record cannot be less than the current streak, setting the current streak equal to the record.");
+            player.getLoginStreakStorage().set(record);
+        }
+        player.getLoginStreakRecordStorage().set(record);
+        return record;
     }
 
     private StreakResult processStreak(IPlayer player) {
@@ -53,10 +84,19 @@ public class LoginStreakService {
         }
 
         lastLoginDateStore.set(today);
+        updateRecord(player);
         return result;
     }
 
-    private void processFeedback(IPlayer player, StreakResult result, int previousStreak) {
+    private void updateRecord(IPlayer player) {
+        int currentRecord = getRecord(player);
+        int streak = getStreak(player);
+        if (streak > currentRecord) {
+            player.getLoginStreakRecordStorage().set(streak);
+        }
+    }
+
+    private void processFeedback(IPlayer player, StreakResult result, int previousStreak, int previousRecord) {
         if (player == null) {
             Log.error("StreakResult::processFeedback() -> Player not found");
             return;
@@ -64,12 +104,20 @@ public class LoginStreakService {
 
         switch (result) {
             case STREAK_MAINTAINED:
-                int newStreak = previousStreak + 1;
+                final int newStreak = previousStreak + 1;
+                final int newRecord = Math.max(newStreak, previousRecord);
                 Config.instance().loginStreak.milestones().forEach(milestone -> {
-                    if (milestone.days() == newStreak || (
-                        milestone.periodic() && newStreak % milestone.days() == 0
-                    )) {
-                        player.sendMessage(milestone.parseMessage(newStreak));
+                    if (milestone.periodic()) {
+                        if (newStreak % milestone.days() == 0) {
+                            player.sendMessage(milestone.parseMessage(newStreak));
+                        }
+                    } else {
+                        if (newRecord != previousRecord && // Only process if record changed
+                            previousRecord < milestone.days() && // Allow for corrections
+                            newRecord >= milestone.days() // Check if milestone is reached
+                        ) {
+                            player.sendMessage(milestone.parseMessage(newRecord));
+                        }
                     }
                 });
                 break;

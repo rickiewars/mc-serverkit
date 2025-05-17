@@ -38,7 +38,7 @@ public class LoginStreakServiceTest {
             ),
             STREAK_LOST_MESSAGE,
             WELCOME_MESSAGE
-        ),null));
+        ), null, null));
     }
 
     private void initPlayer() {

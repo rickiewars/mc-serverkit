@@ -15,10 +15,16 @@ public class Config {
     private static Config instance;
 
     public LoginStreakConfig loginStreak;
+    public TemplatingEngineConfig templatingEngine;
     public HttpServerConfig httpServer;
 
-    public Config(LoginStreakConfig loginStreakConfig, HttpServerConfig httpServerConfig) {
+    public Config(
+        LoginStreakConfig loginStreakConfig,
+        TemplatingEngineConfig templatingEngineConfig,
+        HttpServerConfig httpServerConfig
+    ) {
         this.loginStreak = loginStreakConfig != null ? loginStreakConfig : new LoginStreakConfig();
+        this.templatingEngine = templatingEngineConfig != null ? templatingEngineConfig : new TemplatingEngineConfig();
         this.httpServer = httpServerConfig != null ? httpServerConfig : new HttpServerConfig();
     }
 
@@ -26,7 +32,7 @@ public class Config {
      * Initializes the default configuration
      */
     public Config() {
-        this(new LoginStreakConfig(), new HttpServerConfig());
+        this(new LoginStreakConfig(), new TemplatingEngineConfig(), new HttpServerConfig());
     }
 
     public static Config instance() {
@@ -64,7 +70,7 @@ public class Config {
             return new LoginStreakMilestone(
                 1,
                 100,
-                "Welcome back! You've maintained a login streak for {streak; one day; %d days}! Here's a reward of {reward/100; %.2f} credits.",
+                "Welcome back! You've maintained a login streak for {streak; one day; %d days}! Here's a reward of {reward | currency} credits.",
                 true
             );
         }
@@ -72,13 +78,13 @@ public class Config {
         private static List<LoginStreakMilestone> defaultMilestones() {
             return List.of(
                 new LoginStreakMilestone(7, 200,
-                    "You've managed to login every day for {streak/7; a whole week; %d weeks}! That means you've earned an additional reward of {reward/100; %.2f} credits.",
+                    "You've managed to login every day for {streak/7; a whole week; %d weeks}! That means you've earned an additional reward of {reward | currency} credits.",
                     true),
                 new LoginStreakMilestone(30, 1000,
-                    "You've been consistently logging in for {streak/30; a whole month; %d months}! To show our appreciation, here's an additional reward of {reward/100; %.2f} credits.",
+                    "You've been consistently logging in for {streak/30; a whole month; %d months}! To show our appreciation, here's an additional reward of {reward | currency} credits.",
                     true),
                 new LoginStreakMilestone(365, 5000,
-                    "Congratulations on maintaining a login streak for {streak/365; a whole year; %d years}! For this amazing achievement, we're rewarding you with {reward/100; %.2f} credits.",
+                    "Congratulations on maintaining a login streak for {streak/365; a whole year; %d years}! For this amazing achievement, we're rewarding you with {reward | currency} credits.",
                     true)
             );
         }
@@ -119,16 +125,54 @@ public class Config {
                         "reward", BigDecimal.valueOf(reward)
                     ));
                     variables.putAll(additionalVariables);
+                    Map<String, String> pipelines = Config.instance().templatingEngine.pipelines;
 
-                    return TemplatingEngine.processTemplate(message, variables);
+                    return TemplatingEngine.processTemplate(message, variables, pipelines);
                 } catch (Exception e) {
                     ServerKit.LOGGER.error("Failed to parse message template: " + message, e);
                     return message;
                 }
             }
+
+            public String formattedReward() {
+                String format = Config.instance().templatingEngine.pipelines.get(
+                    TemplatingEngineConfig.PIPELINE_KEY_CURRENCY
+                );
+
+                try {
+                    return TemplatingEngine.processTemplate(format, Map.of("input", BigDecimal.valueOf(reward)));
+                } catch (Exception e) {
+                    ServerKit.LOGGER.error("Failed to parse reward template: " + format, e);
+                    return format;
+                }
+            }
+        }
+    }
+
+    public record TemplatingEngineConfig(
+        Map<String, String> pipelines
+    ) {
+        public static String PIPELINE_KEY_CURRENCY = "currency";
+        public TemplatingEngineConfig(Map<String, String> pipelines) {
+            this.pipelines = pipelines != null ? pipelines : defaultPipelines();
+            if (!this.pipelines.containsKey(PIPELINE_KEY_CURRENCY)) {
+                ServerKit.LOGGER.warn("No currency pipeline found. Using default currency pipeline.");
+                this.pipelines.put(PIPELINE_KEY_CURRENCY, defaultCurrencyPipeline());
+            }
+        }
+        public TemplatingEngineConfig() {
+            this(null);
         }
 
+        private static Map<String, String> defaultPipelines() {
+            return Map.of(
+                PIPELINE_KEY_CURRENCY, defaultCurrencyPipeline()
+            );
+        }
 
+        private static String defaultCurrencyPipeline() {
+            return "€{input/100;%.2f}";
+        }
     }
 
     public record HttpServerConfig(

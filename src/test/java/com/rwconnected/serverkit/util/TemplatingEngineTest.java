@@ -85,4 +85,18 @@ public class TemplatingEngineTest {
         String result = TemplatingEngine.processTemplate(template, Map.of("pi", pi));
         assertEquals("Pi is approximately 3.14 but can be more precisely expressed as 3.142.", result);
     }
+
+    @Test
+    public void testPipelineExpression() {
+        String template = "My net worth is {amount | currency}!";
+        String currencyPipelineExpression = "€{input/100;%.2f}";
+
+        BigDecimal amount = BigDecimal.valueOf(1000000);
+        String result = TemplatingEngine.processTemplate(
+            template,
+            Map.of("amount", amount),
+            Map.of("currency", currencyPipelineExpression)
+        );
+        assertEquals("My net worth is €10000.00!", result);
+    }
 }
