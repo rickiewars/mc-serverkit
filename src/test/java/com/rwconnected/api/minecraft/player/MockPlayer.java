@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
-public class MockPlayer implements IPlayer {
+public class MockPlayer implements IPlayer<String> {
 
     public String name;
     public UUID uuid;
@@ -113,5 +113,10 @@ public class MockPlayer implements IPlayer {
     public void sendSuccess(String message) {
         if (messageConsumer == null) return;
         messageConsumer.accept(MessageLevel.SUCCESS, message);
+    }
+
+    @Override
+    public String getSource() {
+        return name;
     }
 }

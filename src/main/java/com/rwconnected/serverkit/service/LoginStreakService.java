@@ -1,10 +1,15 @@
 package com.rwconnected.serverkit.service;
 
+import com.rwconnected.serverkit.api.economy.EconomyProvider;
+import com.rwconnected.serverkit.api.economy.IAccount;
+import com.rwconnected.serverkit.api.economy.ITransaction;
 import com.rwconnected.serverkit.api.minecraft.player.IPlayer;
 import com.rwconnected.serverkit.api.minecraft.storage.virtual.IStorage;
 import com.rwconnected.serverkit.config.Config;
 import com.rwconnected.serverkit.module.Log;
 import com.rwconnected.serverkit.api.util.time.ITimeProvider;
+import com.rwconnected.serverkit.util.ModUtils;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
@@ -14,6 +19,7 @@ public class LoginStreakService {
     private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
     private final ITimeProvider timeProvider;
+    private final EconomyProvider economyProvider;
 
     private enum StreakResult {
         NO_CHANGE,
@@ -23,26 +29,27 @@ public class LoginStreakService {
         ERROR
     }
 
-    public LoginStreakService(@NotNull ITimeProvider timeProvider) {
+    public LoginStreakService(@NotNull ITimeProvider timeProvider, EconomyProvider economyProvider) {
         this.timeProvider = timeProvider;
+        this.economyProvider = economyProvider;
     }
 
-    public void process(IPlayer player) {
+    public void process(IPlayer<?> player) {
         int currentStreak = getStreak(player);
         int currentRecord = getRecord(player);
         StreakResult result = processStreak(player);
         processFeedback(player, result, currentStreak, currentRecord);
     }
 
-    public int getStreak(IPlayer player) {
+    public int getStreak(IPlayer<?> player) {
         return player.getLoginStreakStorage().get();
     }
 
-    public int getRecord(IPlayer player) {
+    public int getRecord(IPlayer<?> player) {
         return player.getLoginStreakRecordStorage().get();
     }
 
-    public int setStreak(IPlayer player, int streak) {
+    public int setStreak(IPlayer<?> player, int streak) {
         if (streak < 0) {
             streak = 0;
         }
@@ -51,7 +58,7 @@ public class LoginStreakService {
         return streak;
     }
 
-    public int setRecord(IPlayer player, int record) {
+    public int setRecord(IPlayer<?> player, int record) {
         if (record < 0) {
             record = 0;
         }
@@ -64,7 +71,26 @@ public class LoginStreakService {
         return record;
     }
 
-    private StreakResult processStreak(IPlayer player) {
+    public int reward(IPlayer<?> player, int amount) {
+        amount = Math.max(0, amount);
+
+        Identifier currencyId = Config.instance().economy.currencyId();
+        try {
+            IAccount account = economyProvider.getDefaultAccount(player, currencyId);
+            ITransaction transaction = account.increaseBalance(amount);
+            if (transaction.isFailure()) {
+                Log.error("LoginStreakService::reward() -> Failed to reward player " + player.getName() + " with " + ModUtils.formatCurrency(amount));
+                return 0;
+            }
+        } catch (IllegalArgumentException e) {
+            Log.error("LoginStreakService::reward() -> Couldn't interact with economy provider: " + e.getMessage());
+            return 0;
+        }
+
+        return amount;
+    }
+
+    private StreakResult processStreak(IPlayer<?> player) {
         StreakResult result = StreakResult.NO_CHANGE;
         IStorage<String> lastLoginDateStore = player.getLastLoginDateStorage();
         String lastLoginDate = lastLoginDateStore.get();
@@ -88,7 +114,7 @@ public class LoginStreakService {
         return result;
     }
 
-    private void updateRecord(IPlayer player) {
+    private void updateRecord(IPlayer<?> player) {
         int currentRecord = getRecord(player);
         int streak = getStreak(player);
         if (streak > currentRecord) {
@@ -96,7 +122,7 @@ public class LoginStreakService {
         }
     }
 
-    private void processFeedback(IPlayer player, StreakResult result, int previousStreak, int previousRecord) {
+    private void processFeedback(IPlayer<?> player, StreakResult result, int previousStreak, int previousRecord) {
         if (player == null) {
             Log.error("StreakResult::processFeedback() -> Player not found");
             return;
@@ -110,6 +136,7 @@ public class LoginStreakService {
                     if (milestone.periodic()) {
                         if (newStreak % milestone.days() == 0) {
                             player.sendMessage(milestone.parseMessage(newStreak));
+                            reward(player, milestone.reward());
                         }
                     } else {
                         if (newRecord != previousRecord && // Only process if record changed
@@ -117,6 +144,7 @@ public class LoginStreakService {
                             newRecord >= milestone.days() // Check if milestone is reached
                         ) {
                             player.sendMessage(milestone.parseMessage(newRecord));
+                            reward(player, milestone.reward());
                         }
                     }
                 });

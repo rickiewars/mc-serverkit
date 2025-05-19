@@ -1,7 +1,9 @@
 package com.rwconnected.serverkit.config;
 
 import com.rwconnected.serverkit.ServerKit;
+import com.rwconnected.serverkit.util.ModUtils;
 import com.rwconnected.serverkit.util.TemplatingEngine;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
@@ -17,22 +19,30 @@ public class Config {
     public LoginStreakConfig loginStreak;
     public TemplatingEngineConfig templatingEngine;
     public HttpServerConfig httpServer;
+    public EconomyConfig economy;
 
     public Config(
         LoginStreakConfig loginStreakConfig,
         TemplatingEngineConfig templatingEngineConfig,
-        HttpServerConfig httpServerConfig
+        HttpServerConfig httpServerConfig,
+        EconomyConfig economyConfig
     ) {
         this.loginStreak = loginStreakConfig != null ? loginStreakConfig : new LoginStreakConfig();
         this.templatingEngine = templatingEngineConfig != null ? templatingEngineConfig : new TemplatingEngineConfig();
         this.httpServer = httpServerConfig != null ? httpServerConfig : new HttpServerConfig();
+        this.economy = economyConfig != null ? economyConfig : new EconomyConfig();
     }
 
     /**
      * Initializes the default configuration
      */
     public Config() {
-        this(new LoginStreakConfig(), new TemplatingEngineConfig(), new HttpServerConfig());
+        this(
+            new LoginStreakConfig(),
+            new TemplatingEngineConfig(),
+            new HttpServerConfig(),
+            new EconomyConfig()
+        );
     }
 
     public static Config instance() {
@@ -77,14 +87,17 @@ public class Config {
 
         private static List<LoginStreakMilestone> defaultMilestones() {
             return List.of(
-                new LoginStreakMilestone(7, 200,
-                    "You've managed to login every day for {streak/7; a whole week; %d weeks}! That means you've earned an additional reward of {reward | currency} credits.",
+                new LoginStreakMilestone(1, 100,
+                    "Welcome back! You've maintained your streak for {streak; one day; %d days} and earned {reward | currency}.",
+                    true),
+                new LoginStreakMilestone(7, 500,
+                    "You've managed to login every day for {streak/7; a whole week; %d weeks}! That means you've earned an additional reward of {reward | currency}.",
                     true),
                 new LoginStreakMilestone(30, 1000,
-                    "You've been consistently logging in for {streak/30; a whole month; %d months}! To show our appreciation, here's an additional reward of {reward | currency} credits.",
+                    "You've been consistently logging in for {streak/30; a whole month; %d months}! To show our appreciation, here's an additional reward of {reward | currency}.",
                     true),
                 new LoginStreakMilestone(365, 5000,
-                    "Congratulations on maintaining a login streak for {streak/365; a whole year; %d years}! For this amazing achievement, we're rewarding you with {reward | currency} credits.",
+                    "Congratulations on maintaining a login streak for {streak/365; a whole year; %d years}! For this amazing achievement, we're rewarding you with {reward | currency}.",
                     true)
             );
         }
@@ -135,16 +148,7 @@ public class Config {
             }
 
             public String formattedReward() {
-                String format = Config.instance().templatingEngine.pipelines.get(
-                    TemplatingEngineConfig.PIPELINE_KEY_CURRENCY
-                );
-
-                try {
-                    return TemplatingEngine.processTemplate(format, Map.of("input", BigDecimal.valueOf(reward)));
-                } catch (Exception e) {
-                    ServerKit.LOGGER.error("Failed to parse reward template: " + format, e);
-                    return format;
-                }
+                return ModUtils.formatCurrency(reward);
             }
         }
     }
@@ -171,7 +175,7 @@ public class Config {
         }
 
         private static String defaultCurrencyPipeline() {
-            return "€{input/100;%.2f}";
+            return "${input/100;%.2f}";
         }
     }
 
@@ -185,6 +189,22 @@ public class Config {
         }
         public HttpServerConfig() {
             this("0.0.0.0", 8080);
+        }
+    }
+
+    public record EconomyConfig(
+        Identifier currencyId,
+        Identifier accountId
+    ) {
+        public EconomyConfig(Identifier currencyId, Identifier accountId) {
+            this.currencyId = currencyId;
+            this.accountId = accountId;
+        }
+        public EconomyConfig() {
+            this(
+                Identifier.of("guishop", "credit"),
+                Identifier.of("guishop", "account")
+            );
         }
     }
 

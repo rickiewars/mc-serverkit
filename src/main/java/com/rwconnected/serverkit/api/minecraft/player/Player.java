@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Player implements IPlayer {
+public class Player implements IPlayer<ServerPlayerEntity> {
     ServerPlayerEntity player;
 
     public Player(@NotNull ServerPlayerEntity player) {
@@ -81,5 +81,10 @@ public class Player implements IPlayer {
         player.getCommandSource().sendFeedback(
             () -> Text.literal(message).formatted(Formatting.GREEN),
             false);
+    }
+
+    @Override
+    public ServerPlayerEntity getSource() {
+        return player;
     }
 }

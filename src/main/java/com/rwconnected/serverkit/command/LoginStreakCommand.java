@@ -4,11 +4,13 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.rwconnected.serverkit.api.minecraft.player.IPlayer;
+import com.rwconnected.serverkit.ServerKit;
+import com.rwconnected.serverkit.api.economy.Patbox.PbEconomyProvider;
 import com.rwconnected.serverkit.api.minecraft.player.Player;
 import com.rwconnected.serverkit.api.util.time.SystemTimeProvider;
 import com.rwconnected.serverkit.config.Config;
 import com.rwconnected.serverkit.service.LoginStreakService;
+import com.rwconnected.serverkit.util.ModUtils;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.CommandManager;
@@ -58,6 +60,13 @@ public class LoginStreakCommand {
 
             ).then(CommandManager.literal("milestones")
                 .executes(LoginStreakCommand::showMilestones)
+            ).then(CommandManager.literal("reward")
+                .requires(source -> source.hasPermissionLevel(4))
+                .then(CommandManager.argument("player", EntityArgumentType.player())
+                    .then(CommandManager.argument("amount", IntegerArgumentType.integer())
+                        .executes(LoginStreakCommand::reward)
+                    )
+                )
             )
         );
     }
@@ -66,7 +75,7 @@ public class LoginStreakCommand {
         CommandContext<ServerCommandSource> context,
         boolean withTarget
     ) throws CommandSyntaxException {
-        IPlayer player = getPlayer(context, withTarget);
+        Player player = getPlayer(context, withTarget);
         int streak = getService().getStreak(player);
         int record = getService().getRecord(player);
         String target = withTarget ? player.getName() + " has" : "You have";
@@ -80,7 +89,7 @@ public class LoginStreakCommand {
         CommandContext<ServerCommandSource> context,
         boolean withTarget
     ) throws CommandSyntaxException {
-        IPlayer player = getPlayer(context, withTarget);
+        Player player = getPlayer(context, withTarget);
         final int streak = IntegerArgumentType.getInteger(context, "streak");
         int result = getService().setStreak(player, streak);
         Log.source(context, "The login streak of " + player.getName() + " is set to " + result + " days.");
@@ -91,7 +100,7 @@ public class LoginStreakCommand {
         CommandContext<ServerCommandSource> context,
         boolean withTarget
     ) throws CommandSyntaxException {
-        IPlayer player = getPlayer(context, withTarget);
+        Player player = getPlayer(context, withTarget);
         final int record = IntegerArgumentType.getInteger(context, "record");
         int result = getService().setRecord(player, record);
         Log.source(context, "The login streak record of " + player.getName() + " is set to " + result + " days.");
@@ -99,10 +108,10 @@ public class LoginStreakCommand {
     }
 
     private static LoginStreakService getService() {
-        return new LoginStreakService(new SystemTimeProvider());
+        return new LoginStreakService(new SystemTimeProvider(), new PbEconomyProvider(ServerKit.getServer()));
     }
 
-    private static IPlayer getPlayer(
+    private static Player getPlayer(
         CommandContext<ServerCommandSource> ctx,
         boolean withTarget
     ) throws CommandSyntaxException {
@@ -114,7 +123,7 @@ public class LoginStreakCommand {
     private static int showMilestones(
         CommandContext<ServerCommandSource> context
     ) throws CommandSyntaxException {
-        IPlayer player = new Player(context);
+        Player player = new Player(context);
         int record = getService().getRecord(player);
         int streak = getService().getStreak(player);
 
@@ -156,6 +165,16 @@ public class LoginStreakCommand {
             context.getSource().sendFeedback(() -> line,false);
         }
 
+        return 1;
+    }
+
+    private static int reward(
+        CommandContext<ServerCommandSource> context
+    ) throws CommandSyntaxException {
+        Player player = new Player(EntityArgumentType.getPlayer(context, "player"));
+        final int amount = IntegerArgumentType.getInteger(context, "amount");
+        int result = getService().reward(player, amount);
+        Log.source(context, "Rewarded " + player.getName() + " with " + ModUtils.formatCurrency(result));
         return 1;
     }
 

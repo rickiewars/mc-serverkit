@@ -5,7 +5,7 @@ import com.rwconnected.serverkit.api.minecraft.storage.virtual.IStorage;
 
 import java.util.UUID;
 
-public interface IPlayer {
+public interface IPlayer<T> {
     public String getName();
     public UUID getUUID();
 
@@ -18,4 +18,6 @@ public interface IPlayer {
     public void sendWarning(String message);
     public void sendError(String message);
     public void sendSuccess(String message);
+
+    public T getSource();
 }

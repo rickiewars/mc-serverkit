@@ -51,6 +51,9 @@ dependencies {
 	// Adds compatibility with unmodified clients. Technically optional, but you'll want it when running your server.
 	modImplementation include("eu.pb4:polymer-core:${project.polymer_version}")
 
+	// Add compatibility with lots of economy mods
+	modImplementation include("eu.pb4:common-economy-api:${project.common_economy_api_version}")
+
 	// Used for unit tests
 	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
 	testImplementation "org.junit.platform:junit-platform-suite:${project.junit_platform_version}"

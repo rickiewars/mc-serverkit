@@ -89,7 +89,7 @@ public class TemplatingEngineTest {
     @Test
     public void testPipelineExpression() {
         String template = "My net worth is {amount | currency}!";
-        String currencyPipelineExpression = "€{input/100;%.2f}";
+        String currencyPipelineExpression = "${input/100;%.2f}";
 
         BigDecimal amount = BigDecimal.valueOf(1000000);
         String result = TemplatingEngine.processTemplate(
@@ -97,6 +97,6 @@ public class TemplatingEngineTest {
             Map.of("amount", amount),
             Map.of("currency", currencyPipelineExpression)
         );
-        assertEquals("My net worth is €10000.00!", result);
+        assertEquals("My net worth is $10000.00!", result);
     }
 }

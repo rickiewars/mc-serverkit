@@ -1,5 +1,6 @@
 package com.rwconnected.serverkit.event;
 
+import com.rwconnected.serverkit.api.economy.Patbox.PbEconomyProvider;
 import com.rwconnected.serverkit.api.minecraft.player.Player;
 import com.rwconnected.serverkit.api.util.time.SystemTimeProvider;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -13,7 +14,10 @@ public class PlayerJoinEvent implements ServerPlayConnectionEvents.Join {
     @Override
     public void onPlayReady(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
         ServerPlayerEntity player = handler.getPlayer();
-        LoginStreakService loginStreakService = new LoginStreakService(new SystemTimeProvider());
+        LoginStreakService loginStreakService = new LoginStreakService(
+            new SystemTimeProvider(),
+            new PbEconomyProvider(server)
+        );
         loginStreakService.process(new Player(player));
     }
 }

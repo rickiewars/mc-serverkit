@@ -60,7 +60,7 @@ public class TemplatingEngine {
      * For example:
      *  - the template is "Amount: {amount | currency}"
      *  - the currency pipeline is defined as "${input / 100; %.2f}"
-     *  - the result will be "Amount: €{amount / 100; %.2f}"
+     *  - the result will be "Amount: ${amount / 100; %.2f}"
      *
      * @param template The input template string containing placeholders.
      * @param pipelines A map of pipeline names and their corresponding expressions.
