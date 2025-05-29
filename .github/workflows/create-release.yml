@@ -2,7 +2,7 @@ on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-      - '*+*' # Push events to matching *+*, i.e. 1.0.0+1.21.5, 1.0.0+1.21, etc.
+      - '*' # Push events to matching *+*, i.e. 1.0.0+1.21.5, 1.0.0+1.21, etc.
 
 name: Create Release
 
