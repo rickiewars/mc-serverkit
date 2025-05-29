@@ -39,6 +39,7 @@ public class GetTimeCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         var rtcCommand = CommandManager.literal("rtc")
+            .requires(Permission.RTC.require())
             .executes(GetTimeCommand::help);
 
         var getCommand = CommandManager.literal("get")
