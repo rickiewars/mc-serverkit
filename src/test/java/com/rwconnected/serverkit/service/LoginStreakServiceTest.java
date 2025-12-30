@@ -1,16 +1,16 @@
 package com.rwconnected.serverkit.service;
 
-import com.rwconnected.api.economy.mock.MockAccount;
-import com.rwconnected.api.economy.mock.MockCurrency;
 import com.rwconnected.api.economy.mock.MockEconomyProvider;
 import com.rwconnected.api.minecraft.player.MockPlayer;
-import com.rwconnected.api.util.time.MockTimeProvider;
 import com.rwconnected.serverkit.api.economy.IAccount;
+import com.rwconnected.serverkit.api.util.time.MockTimeProvider;
 import com.rwconnected.serverkit.config.Config;
 import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
 import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LoginStreakServiceTest {
     private MockPlayer player;

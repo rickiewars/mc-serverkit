@@ -29,11 +29,6 @@ public class MockStringStorage implements IStorage<String> {
     }
 
     @Override
-    public void remove() {
-        this.value = "";
-    }
-
-    @Override
     public void reset() {
         this.value = this.defaultValue;
     }

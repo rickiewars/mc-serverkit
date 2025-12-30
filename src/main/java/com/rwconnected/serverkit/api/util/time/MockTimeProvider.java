@@ -1,6 +1,4 @@
-package com.rwconnected.api.util.time;
-
-import com.rwconnected.serverkit.api.util.time.SystemTimeProvider;
+package com.rwconnected.serverkit.api.util.time;
 
 import java.util.Calendar;
 import java.util.Date;

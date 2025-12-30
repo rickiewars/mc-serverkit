@@ -2,28 +2,31 @@ package com.rwconnected.serverkit.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.rwconnected.serverkit.ServerKit;
 import com.rwconnected.serverkit.api.economy.Patbox.PbEconomyProvider;
 import com.rwconnected.serverkit.api.minecraft.player.Player;
+import com.rwconnected.serverkit.api.util.time.ITimeProvider;
+import com.rwconnected.serverkit.api.util.time.MockTimeProvider;
 import com.rwconnected.serverkit.api.util.time.SystemTimeProvider;
 import com.rwconnected.serverkit.config.Config;
+import com.rwconnected.serverkit.errors.CommandErrors;
+import com.rwconnected.serverkit.module.Log;
 import com.rwconnected.serverkit.service.LoginStreakService;
 import com.rwconnected.serverkit.util.ModUtils;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import com.rwconnected.serverkit.module.Log;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class LoginStreakCommand {
     public static void register(CommandDispatcher<ServerCommandSource> serverCommandSourceCommandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
@@ -71,6 +74,13 @@ public class LoginStreakCommand {
                 .then(CommandManager.argument("player", EntityArgumentType.player())
                     .then(CommandManager.argument("amount", IntegerArgumentType.integer())
                         .executes(LoginStreakCommand::reward)
+                    )
+                )
+            ).then(CommandManager.literal("simulate-new-day")
+                .requires(Permission.LOGIN_STREAK_REWARD.require())
+                .then(CommandManager.argument("player", EntityArgumentType.player())
+                    .then(CommandManager.argument("date", StringArgumentType.string())
+                        .executes(LoginStreakCommand::simulateNewDay)
                     )
                 )
             )
@@ -182,6 +192,26 @@ public class LoginStreakCommand {
         int result = getService().reward(player, amount);
         Log.source(context, "Rewarded " + player.getName() + " with " + ModUtils.formatCurrency(result));
         return 1;
+    }
+
+    private static int simulateNewDay(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+        String dateStr = StringArgumentType.getString(context, "date");
+        Player player = new Player(EntityArgumentType.getPlayer(context, "player"));
+
+        try {
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+            Date date = dateFormatter.parse(dateStr);
+            ITimeProvider timeProvider = new MockTimeProvider(date);
+            LoginStreakService service = new LoginStreakService(
+                timeProvider,
+                new PbEconomyProvider(ServerKit.getServer())
+            );
+            service.process(player);
+        } catch (ParseException e) {
+            throw CommandErrors.DATE_PARSE_ERROR.create(dateStr);
+        }
+
+        return 0;
     }
 
 }

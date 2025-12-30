@@ -3,7 +3,7 @@
 	"package": "com.rwconnected.serverkit.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"EntityDataSaver"
+		"ServerPlayerDataMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

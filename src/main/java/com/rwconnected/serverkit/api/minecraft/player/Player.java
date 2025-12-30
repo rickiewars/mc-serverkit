@@ -1,9 +1,9 @@
 package com.rwconnected.serverkit.api.minecraft.player;
 
 import com.mojang.brigadier.context.CommandContext;
-import com.rwconnected.serverkit.api.minecraft.storage.LastLoginDateStorage;
-import com.rwconnected.serverkit.api.minecraft.storage.LoginStreakRecordStorage;
-import com.rwconnected.serverkit.api.minecraft.storage.LoginStreakStorage;
+import com.rwconnected.serverkit.api.minecraft.storage.ILastLoginDateStorage;
+import com.rwconnected.serverkit.api.minecraft.storage.ILoginStreakRecordStorage;
+import com.rwconnected.serverkit.api.minecraft.storage.ILoginStreakStorage;
 import com.rwconnected.serverkit.api.minecraft.storage.virtual.INumericStorage;
 import com.rwconnected.serverkit.api.minecraft.storage.virtual.IStorage;
 import net.minecraft.server.command.ServerCommandSource;
@@ -37,17 +37,17 @@ public class Player implements IPlayer<ServerPlayerEntity> {
 
     @Override
     public INumericStorage<Integer> getLoginStreakStorage() {
-        return new LoginStreakStorage(player);
+        return new ILoginStreakStorage(player);
     }
 
     @Override
     public INumericStorage<Integer> getLoginStreakRecordStorage() {
-        return new LoginStreakRecordStorage(player);
+        return new ILoginStreakRecordStorage(player);
     }
 
     @Override
     public IStorage<String> getLastLoginDateStorage() {
-        return new LastLoginDateStorage(player);
+        return new ILastLoginDateStorage(player);
     }
 
     @Override

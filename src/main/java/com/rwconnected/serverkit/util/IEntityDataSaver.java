@@ -1,7 +1,5 @@
 package com.rwconnected.serverkit.util;
 
-import net.minecraft.nbt.NbtCompound;
-
-public interface IEntityDataSaver {
-    NbtCompound serverkit_getPersistentData();
+public interface IEntityDataSaver<T> {
+    T serverkit_getPersistentData();
 }

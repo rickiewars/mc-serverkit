@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.10-SNAPSHOT'
+	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -23,8 +23,17 @@ repositories {
 		url = 'https://cursemaven.com'
 	}
 
-	// Mods from Patbox
-	maven { url = 'https://maven.nucleoid.xyz' }
+	maven {
+		name = 'Ladysnake Mods'
+		description = 'For mods by Ladysnake like Cardinal-Components-API'
+		url = 'https://maven.ladysnake.org/releases'
+	}
+
+	maven {
+		name = 'Patbox Mods'
+		description = 'For mods by Patbox'
+		url = 'https://maven.nucleoid.xyz'
+	}
 }
 
 loom {
@@ -54,7 +63,12 @@ dependencies {
 	// Add compatibility with lots of economy mods
 	modImplementation include("eu.pb4:common-economy-api:${project.common_economy_api_version}")
 
+	// Permissions API
 	include(modImplementation("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
+
+	// Adds an easy way to add components to vanilla Minecraft objects (like players)
+	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}"
+	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}"
 
 	// Used for unit tests
 	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"

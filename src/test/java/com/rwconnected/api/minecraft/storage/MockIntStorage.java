@@ -1,8 +1,6 @@
 package com.rwconnected.api.minecraft.storage;
 
 import com.rwconnected.serverkit.api.minecraft.storage.virtual.INumericStorage;
-import com.rwconnected.serverkit.api.minecraft.storage.virtual.NbtStorage;
-import com.rwconnected.serverkit.util.IEntityDataSaver;
 
 public class MockIntStorage implements INumericStorage<Integer> {
     private int value;
@@ -28,11 +26,6 @@ public class MockIntStorage implements INumericStorage<Integer> {
     @Override
     public void set(Integer value) {
         this.value = value;
-    }
-
-    @Override
-    public void remove() {
-        this.value = 0;
     }
 
     @Override
