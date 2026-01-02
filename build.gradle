@@ -66,6 +66,9 @@ dependencies {
 	// Permissions API
 	include(modImplementation("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
 
+	// Dynamic expressions library for evaluating math and logic expressions
+	modImplementation include("com.ezylang:EvalEx:${project.evalex_version}")
+
 	// Adds an easy way to add components to vanilla Minecraft objects (like players)
 	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}"
 	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}"
@@ -75,7 +78,6 @@ dependencies {
 	testImplementation "org.junit.platform:junit-platform-suite:${project.junit_platform_version}"
 	testImplementation "org.junit.platform:junit-platform-suite-engine:${project.junit_platform_version}"
 
-	implementation "com.ezylang:EvalEx:${project.evalex_version}"
 }
 
 processResources {
