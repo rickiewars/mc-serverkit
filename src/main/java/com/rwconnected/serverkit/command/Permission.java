@@ -23,6 +23,7 @@ public enum Permission {
     LOGIN_STREAK_SET("loginStreak.set", 3),
     LOGIN_STREAK_SET_PLAYER("loginStreak.set.player", 3),
     LOGIN_STREAK_REWARD("loginStreak.reward", 3),
+    LOGIN_STREAK_TEST("loginStreak.test", 3),
 
     RTC("rtc", 2);
 

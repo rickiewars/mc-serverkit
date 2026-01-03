@@ -62,6 +62,8 @@ public class TemplatingEngine {
      *  - the currency pipeline is defined as "${input / 100; %.2f}"
      *  - the result will be "Amount: ${amount / 100; %.2f}"
      *
+     * TODO: Currency can be parsed by the common economy API. Rewrite to use that instead.
+     *
      * @param template The input template string containing placeholders.
      * @param pipelines A map of pipeline names and their corresponding expressions.
      * @return The processed string with pipelines replaced by their expressions.

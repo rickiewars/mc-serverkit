@@ -77,7 +77,7 @@ public class LoginStreakCommand {
                     )
                 )
             ).then(CommandManager.literal("simulate-new-day")
-                .requires(Permission.LOGIN_STREAK_REWARD.require())
+                .requires(Permission.LOGIN_STREAK_TEST.require())
                 .then(CommandManager.argument("player", EntityArgumentType.player())
                     .then(CommandManager.argument("date", StringArgumentType.string())
                         .executes(LoginStreakCommand::simulateNewDay)
