@@ -5,7 +5,6 @@ import com.rwconnected.api.minecraft.player.MockPlayer;
 import com.rwconnected.serverkit.api.economy.IAccount;
 import com.rwconnected.serverkit.api.util.time.MockTimeProvider;
 import com.rwconnected.serverkit.config.Config;
-import net.minecraft.util.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -57,8 +56,8 @@ public class LoginStreakServiceTest {
             null,
             null,
             economyConfig != null ? economyConfig : new Config.EconomyConfig(
-                Identifier.of("mock", "currency"),
-                Identifier.of("mock", "account")
+                "mock:currency",
+                "mock:account"
             )
         ));
     }
@@ -221,7 +220,7 @@ public class LoginStreakServiceTest {
         loginStreakService.process(player);
 
         IAccount account = this.economyProvider.getDefaultAccount(
-            this.player, Config.instance().economy.currencyId()
+            this.player, Config.instance().economy.CurrencyIdentifier()
         );
 
         assertEquals(DAILY_REWARD, account.getBalance());
@@ -238,7 +237,7 @@ public class LoginStreakServiceTest {
         loginStreakService.process(player);
 
         IAccount account = this.economyProvider.getDefaultAccount(
-            this.player, Config.instance().economy.currencyId()
+            this.player, Config.instance().economy.CurrencyIdentifier()
         );
 
         assertEquals(0, account.getBalance());
@@ -255,7 +254,7 @@ public class LoginStreakServiceTest {
         loginStreakService.process(player);
 
         IAccount account = this.economyProvider.getDefaultAccount(
-            this.player, Config.instance().economy.currencyId()
+            this.player, Config.instance().economy.CurrencyIdentifier()
         );
 
         assertEquals(DAILY_REWARD + WEEKLY_REWARD, account.getBalance());
@@ -272,7 +271,7 @@ public class LoginStreakServiceTest {
         loginStreakService.process(player);
 
         IAccount account = this.economyProvider.getDefaultAccount(
-            this.player, Config.instance().economy.currencyId()
+            this.player, Config.instance().economy.CurrencyIdentifier()
         );
 
         assertEquals(DAILY_REWARD + WEEKLY_REWARD + MONTHLY_REWARD, account.getBalance());
@@ -289,7 +288,7 @@ public class LoginStreakServiceTest {
         loginStreakService.process(player);
 
         IAccount account = this.economyProvider.getDefaultAccount(
-            this.player, Config.instance().economy.currencyId()
+            this.player, Config.instance().economy.CurrencyIdentifier()
         );
 
         assertEquals(DAILY_REWARD + DAY_100_REWARD, account.getBalance());
@@ -307,7 +306,7 @@ public class LoginStreakServiceTest {
         loginStreakService.process(player);
 
         IAccount account = this.economyProvider.getDefaultAccount(
-            this.player, Config.instance().economy.currencyId()
+            this.player, Config.instance().economy.CurrencyIdentifier()
         );
 
         assertEquals(DAILY_REWARD, account.getBalance());
@@ -316,8 +315,8 @@ public class LoginStreakServiceTest {
     @Test
     public void testLoginStreakServiceStillWorksWithMisconfiguredEconomyConfig() {
         initConfig(new Config.EconomyConfig(
-            Identifier.of("invalid", "id1"),
-            Identifier.of("invalid", "id2")
+            "invalid:id1",
+            "invalid:id2"
         ));
         setupService();
         initPlayer();

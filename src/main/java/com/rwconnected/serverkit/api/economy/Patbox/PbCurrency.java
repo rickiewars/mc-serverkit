@@ -25,4 +25,9 @@ public class PbCurrency implements ICurrency {
         ServerPlayerEntity mcPlayer = ((Player) player).getSource();
         return new PbAccount(currency.provider().getDefaultAccount(mcPlayer, currency));
     }
+
+    @Override
+    public String formatValue(long value) {
+        return currency.formatValue(value, false);
+    }
 }

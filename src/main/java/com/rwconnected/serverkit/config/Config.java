@@ -193,18 +193,26 @@ public class Config {
     }
 
     public record EconomyConfig(
-        Identifier currencyId,
-        Identifier accountId
+        String currencyId,
+        String accountId
     ) {
-        public EconomyConfig(Identifier currencyId, Identifier accountId) {
+        public EconomyConfig(String currencyId, String accountId) {
             this.currencyId = currencyId;
             this.accountId = accountId;
         }
         public EconomyConfig() {
             this(
-                Identifier.of("guishop", "credit"),
-                Identifier.of("guishop", "account")
+                "guishop:credit",
+                "guishop:account"
             );
+        }
+
+        public Identifier CurrencyIdentifier() {
+            return Identifier.of(currencyId);
+        }
+
+        public Identifier AccountIdentifier() {
+            return Identifier.of(accountId);
         }
     }
 

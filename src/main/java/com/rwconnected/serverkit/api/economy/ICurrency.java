@@ -7,4 +7,5 @@ public interface ICurrency {
 
     public Identifier getId();
     public IAccount getDefaultAccount(IPlayer<?> player);
+    String formatValue(long value);
 }

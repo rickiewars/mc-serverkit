@@ -5,9 +5,9 @@ import com.rwconnected.serverkit.api.economy.IAccount;
 import com.rwconnected.serverkit.api.economy.ITransaction;
 import com.rwconnected.serverkit.api.minecraft.player.IPlayer;
 import com.rwconnected.serverkit.api.minecraft.storage.virtual.IStorage;
+import com.rwconnected.serverkit.api.util.time.ITimeProvider;
 import com.rwconnected.serverkit.config.Config;
 import com.rwconnected.serverkit.module.Log;
-import com.rwconnected.serverkit.api.util.time.ITimeProvider;
 import com.rwconnected.serverkit.util.ModUtils;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
@@ -74,7 +74,7 @@ public class LoginStreakService {
     public int reward(IPlayer<?> player, int amount) {
         amount = Math.max(0, amount);
 
-        Identifier currencyId = Config.instance().economy.currencyId();
+        Identifier currencyId = Config.instance().economy.CurrencyIdentifier();
         try {
             IAccount account = economyProvider.getDefaultAccount(player, currencyId);
             ITransaction transaction = account.increaseBalance(amount);
