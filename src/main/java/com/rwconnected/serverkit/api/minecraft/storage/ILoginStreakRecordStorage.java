@@ -2,13 +2,13 @@ package com.rwconnected.serverkit.api.minecraft.storage;
 
 import com.rwconnected.serverkit.api.minecraft.storage.virtual.INumericStorage;
 import com.rwconnected.serverkit.api.minecraft.storage.virtual.PlayerFieldStorage;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
 public class ILoginStreakRecordStorage extends PlayerFieldStorage<Integer> implements INumericStorage<Integer> {
     private final static int DEFAULT_VALUE = 1;
 
-    public ILoginStreakRecordStorage(@NotNull ServerPlayerEntity player) {
+    public ILoginStreakRecordStorage(@NotNull ServerPlayer player) {
         super(player);
     }
 

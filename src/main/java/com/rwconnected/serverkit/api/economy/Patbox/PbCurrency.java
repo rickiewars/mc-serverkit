@@ -5,8 +5,10 @@ import com.rwconnected.serverkit.api.economy.ICurrency;
 import com.rwconnected.serverkit.api.minecraft.player.IPlayer;
 import com.rwconnected.serverkit.api.minecraft.player.Player;
 import eu.pb4.common.economy.api.EconomyCurrency;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+
+import java.math.BigInteger;
 
 public class PbCurrency implements ICurrency {
     private final EconomyCurrency currency;
@@ -22,12 +24,12 @@ public class PbCurrency implements ICurrency {
 
     @Override
     public IAccount getDefaultAccount(IPlayer<?> player) {
-        ServerPlayerEntity mcPlayer = ((Player) player).getSource();
+        ServerPlayer mcPlayer = ((Player) player).getSource();
         return new PbAccount(currency.provider().getDefaultAccount(mcPlayer, currency));
     }
 
     @Override
-    public String formatValue(long value) {
+    public String formatValue(BigInteger value) {
         return currency.formatValue(value, false);
     }
 }

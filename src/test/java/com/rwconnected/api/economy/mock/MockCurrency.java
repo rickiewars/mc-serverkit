@@ -3,7 +3,9 @@ package com.rwconnected.api.economy.mock;
 import com.rwconnected.serverkit.api.economy.IAccount;
 import com.rwconnected.serverkit.api.economy.ICurrency;
 import com.rwconnected.serverkit.api.minecraft.player.IPlayer;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+
+import java.math.BigInteger;
 
 public class MockCurrency implements ICurrency {
     private final Identifier id;
@@ -18,7 +20,7 @@ public class MockCurrency implements ICurrency {
         this.defaultAccount = defaultAccount;
     }
     public MockCurrency(MockAccount defaultAccount) {
-        this(Identifier.of("mock", "currency"), defaultAccount);
+        this(Identifier.fromNamespaceAndPath("mock", "currency"), defaultAccount);
     }
     public MockCurrency() {
         this(new MockAccount());
@@ -35,9 +37,9 @@ public class MockCurrency implements ICurrency {
     }
 
     @Override
-    public String formatValue(long value) {
-        int fraction = (int) (value % (long) Math.pow(10, decimalPlaces));
-        long whole = value / (long) Math.pow(10, decimalPlaces);
-        return String.format("%s%d.%0" + decimalPlaces + "d%s", prefix, whole, fraction, suffix);
+    public String formatValue(BigInteger value) {
+        BigInteger scale = BigInteger.TEN.pow(decimalPlaces);
+        BigInteger[] wholeAndFraction = value.divideAndRemainder(scale);
+        return String.format("%s%d.%0" + decimalPlaces + "d%s", prefix, wholeAndFraction[0], wholeAndFraction[1].abs(), suffix);
     }
 }

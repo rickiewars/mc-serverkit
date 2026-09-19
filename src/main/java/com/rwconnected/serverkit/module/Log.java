@@ -2,8 +2,8 @@ package com.rwconnected.serverkit.module;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.rwconnected.serverkit.ServerKit;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 
 public class Log {
 
@@ -71,8 +71,8 @@ public class Log {
         }
     }
 
-    public static void source(CommandContext<ServerCommandSource> context, String message) {
-        context.getSource().sendFeedback(() -> Text.literal(message), false);
+    public static void source(CommandContext<CommandSourceStack> context, String message) {
+        context.getSource().sendSuccess(() -> Component.literal(message), false);
     }
 
 }

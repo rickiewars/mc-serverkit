@@ -2,9 +2,8 @@ package com.rwconnected.serverkit.http.Services;
 
 import com.rwconnected.serverkit.http.Models.Objective;
 import com.rwconnected.serverkit.http.Resources.StatisticsResource;
-import net.minecraft.scoreboard.ScoreboardObjective;
-import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerScoreboard;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -30,7 +29,7 @@ public class StatisticsService {
         CompletableFuture<Objective> future = new CompletableFuture<>();
         this.server.execute(() -> {
             ServerScoreboard scoreboard = server.getScoreboard();
-            ScoreboardObjective objective = scoreboard.getObjectives().stream()
+            net.minecraft.world.scores.Objective objective = scoreboard.getObjectives().stream()
                 .filter(obj -> obj.getName().equals(objectiveName))
                 .findFirst().orElse(null);
             if (objective == null) {

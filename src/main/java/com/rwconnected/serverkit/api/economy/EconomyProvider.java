@@ -1,7 +1,7 @@
 package com.rwconnected.serverkit.api.economy;
 
 import com.rwconnected.serverkit.api.minecraft.player.IPlayer;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 public abstract class EconomyProvider {
     protected abstract ICurrency getCurrencyImpl(Identifier currencyId);

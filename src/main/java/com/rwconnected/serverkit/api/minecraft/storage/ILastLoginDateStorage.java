@@ -1,13 +1,13 @@
 package com.rwconnected.serverkit.api.minecraft.storage;
 
 import com.rwconnected.serverkit.api.minecraft.storage.virtual.PlayerFieldStorage;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
 public class ILastLoginDateStorage extends PlayerFieldStorage<String> {
     private final static String DEFAULT_VALUE = "";
 
-    public ILastLoginDateStorage(@NotNull ServerPlayerEntity player) {
+    public ILastLoginDateStorage(@NotNull ServerPlayer player) {
         super(player);
     }
 

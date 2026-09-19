@@ -1,10 +1,8 @@
 package com.rwconnected.api.economy.mock;
 
-import com.rwconnected.serverkit.api.economy.IAccount;
-import com.rwconnected.serverkit.api.economy.ICurrency;
 import com.rwconnected.serverkit.api.economy.EconomyProvider;
-import com.rwconnected.serverkit.api.minecraft.player.IPlayer;
-import net.minecraft.util.Identifier;
+import com.rwconnected.serverkit.api.economy.ICurrency;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 

@@ -2,10 +2,10 @@ package com.rwconnected.serverkit.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
@@ -37,17 +37,17 @@ public class GetTimeCommand {
         TIME_FORMATS.put("second", "ss");
     }
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
-        var rtcCommand = CommandManager.literal("rtc")
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandBuildContext, Commands.CommandSelection registrationEnvironment) {
+        var rtcCommand = Commands.literal("rtc")
             .requires(Permission.RTC.require())
             .executes(GetTimeCommand::help);
 
-        var getCommand = CommandManager.literal("get")
+        var getCommand = Commands.literal("get")
             .executes(ctx -> sendFormattedTime(ctx, null));
 
         TIME_FORMATS.forEach((key, format) -> {
             if (key.equals("serverkit")) return;
-            getCommand.then(CommandManager.literal(key)
+            getCommand.then(Commands.literal(key)
                 .executes(ctx -> sendFormattedTime(ctx, key)));
         });
 
@@ -55,11 +55,11 @@ public class GetTimeCommand {
         dispatcher.register(rtcCommand);
     }
 
-    private static int sendFormattedTime(CommandContext<ServerCommandSource> context, @Nullable String key) {
+    private static int sendFormattedTime(CommandContext<CommandSourceStack> context, @Nullable String key) {
         String format = key == null ? DEFAULT_FORMAT : TIME_FORMATS.get(key);
         if (format != null) {
             String formattedTime = new SimpleDateFormat(format).format(new Date());
-            context.getSource().sendFeedback(() -> Text.literal(formattedTime), false);
+            context.getSource().sendSuccess(() -> Component.literal(formattedTime), false);
             try {
                 return Integer.parseInt(formattedTime);
             } catch (NumberFormatException e) {
@@ -69,8 +69,8 @@ public class GetTimeCommand {
         return 0;
     }
 
-    private static int help(CommandContext<ServerCommandSource> context) {
-        context.getSource().sendFeedback(() -> Text.literal("Usage: /rtc get ["
+    private static int help(CommandContext<CommandSourceStack> context) {
+        context.getSource().sendSuccess(() -> Component.literal("Usage: /rtc get ["
             + String.join("|", TIME_FORMATS.keySet()) + "]"), false);
         return 1;
     }

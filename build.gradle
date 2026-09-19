@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -24,12 +24,6 @@ repositories {
 	}
 
 	maven {
-		name = 'Ladysnake Mods'
-		description = 'For mods by Ladysnake like Cardinal-Components-API'
-		url = 'https://maven.ladysnake.org/releases'
-	}
-
-	maven {
 		name = 'Patbox Mods'
 		description = 'For mods by Patbox'
 		url = 'https://maven.nucleoid.xyz'
@@ -50,28 +44,24 @@ loom {
 
 dependencies {
 	// To change the versions see the gradle.properties file
+	// Minecraft ships unobfuscated as of 26.1, so no mappings dependency is needed here.
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// Adds compatibility with unmodified clients. Technically optional, but you'll want it when running your server.
-	modImplementation include("eu.pb4:polymer-core:${project.polymer_version}")
+	implementation include("eu.pb4:polymer-core:${project.polymer_version}")
 
 	// Add compatibility with lots of economy mods
-	modImplementation include("eu.pb4:common-economy-api:${project.common_economy_api_version}")
+	implementation include("eu.pb4:common-economy-api:${project.common_economy_api_version}")
 
 	// Permissions API
-	include(modImplementation("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
+	include(implementation("me.lucko:fabric-permissions-api:${project.fabric_permissions_api_version}"))
 
 	// Dynamic expressions library for evaluating math and logic expressions
-	modImplementation include("com.ezylang:EvalEx:${project.evalex_version}")
-
-	// Adds an easy way to add components to vanilla Minecraft objects (like players)
-	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.cardinal_components_api_version}"
-	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_api_version}"
+	implementation include("com.ezylang:EvalEx:${project.evalex_version}")
 
 	// Used for unit tests
 	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
@@ -118,7 +108,7 @@ test {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 25
 }
 
 tasks.register("verifyTagMatchesVersion") {
@@ -144,8 +134,8 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 def archivesName = project.base.archivesName.get()

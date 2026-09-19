@@ -3,10 +3,11 @@ package com.rwconnected.serverkit.config;
 import com.rwconnected.serverkit.ServerKit;
 import com.rwconnected.serverkit.util.ModUtils;
 import com.rwconnected.serverkit.util.TemplatingEngine;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +80,7 @@ public class Config {
         private static LoginStreakMilestone defaultDailyMilestone() {
             return new LoginStreakMilestone(
                 1,
-                100,
+                BigInteger.valueOf(100),
                 "Welcome back! You've maintained a login streak for {streak; one day; %d days}! Here's a reward of {reward | currency} credits.",
                 true
             );
@@ -87,16 +88,16 @@ public class Config {
 
         private static List<LoginStreakMilestone> defaultMilestones() {
             return List.of(
-                new LoginStreakMilestone(1, 100,
+                new LoginStreakMilestone(1, BigInteger.valueOf(100),
                     "Welcome back! You've maintained your streak for {streak; one day; %d days} and earned {reward | currency}.",
                     true),
-                new LoginStreakMilestone(7, 500,
+                new LoginStreakMilestone(7, BigInteger.valueOf(500),
                     "You've managed to login every day for {streak/7; a whole week; %d weeks}! That means you've earned an additional reward of {reward | currency}.",
                     true),
-                new LoginStreakMilestone(30, 1000,
+                new LoginStreakMilestone(30, BigInteger.valueOf(1000),
                     "You've been consistently logging in for {streak/30; a whole month; %d months}! To show our appreciation, here's an additional reward of {reward | currency}.",
                     true),
-                new LoginStreakMilestone(365, 5000,
+                new LoginStreakMilestone(365, BigInteger.valueOf(5000),
                     "Congratulations on maintaining a login streak for {streak/365; a whole year; %d years}! For this amazing achievement, we're rewarding you with {reward | currency}.",
                     true)
             );
@@ -123,7 +124,7 @@ public class Config {
             }
         }
 
-        public record LoginStreakMilestone(int days, int reward, String message, boolean periodic){
+        public record LoginStreakMilestone(int days, BigInteger reward, String message, boolean periodic){
 
             // TODO: Make message an array so that a message can have multiple lines
             // Idea: an array of messages which can be randomly selected.
@@ -135,7 +136,7 @@ public class Config {
                 try {
                     Map<String, BigDecimal> variables = new HashMap<>(Map.of(
                         "streak", BigDecimal.valueOf(streak),
-                        "reward", BigDecimal.valueOf(reward)
+                        "reward", new BigDecimal(reward)
                     ));
                     variables.putAll(additionalVariables);
                     Map<String, String> pipelines = Config.instance().templatingEngine.pipelines;
@@ -208,11 +209,11 @@ public class Config {
         }
 
         public Identifier CurrencyIdentifier() {
-            return Identifier.of(currencyId);
+            return Identifier.parse(currencyId);
         }
 
         public Identifier AccountIdentifier() {
-            return Identifier.of(accountId);
+            return Identifier.parse(accountId);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.rwconnected.serverkit.command;
 
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
@@ -36,7 +36,7 @@ public enum Permission {
     }
 
     @NotNull
-    public Predicate<ServerCommandSource> require() {
+    public Predicate<CommandSourceStack> require() {
         return Permissions.require(this.permission, this.defaultLevel);
     }
 }

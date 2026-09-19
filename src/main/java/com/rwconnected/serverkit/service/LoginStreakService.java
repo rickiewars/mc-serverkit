@@ -9,9 +9,10 @@ import com.rwconnected.serverkit.api.util.time.ITimeProvider;
 import com.rwconnected.serverkit.config.Config;
 import com.rwconnected.serverkit.module.Log;
 import com.rwconnected.serverkit.util.ModUtils;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 
 public class LoginStreakService {
@@ -71,8 +72,8 @@ public class LoginStreakService {
         return record;
     }
 
-    public int reward(IPlayer<?> player, int amount) {
-        amount = Math.max(0, amount);
+    public BigInteger reward(IPlayer<?> player, BigInteger amount) {
+        amount = amount.max(BigInteger.ZERO);
 
         Identifier currencyId = Config.instance().economy.CurrencyIdentifier();
         try {
@@ -80,11 +81,11 @@ public class LoginStreakService {
             ITransaction transaction = account.increaseBalance(amount);
             if (transaction.isFailure()) {
                 Log.error("LoginStreakService::reward() -> Failed to reward player " + player.getName() + " with " + ModUtils.formatCurrency(amount));
-                return 0;
+                return BigInteger.ZERO;
             }
         } catch (IllegalArgumentException e) {
             Log.error("LoginStreakService::reward() -> Couldn't interact with economy provider: " + e.getMessage());
-            return 0;
+            return BigInteger.ZERO;
         }
 
         return amount;

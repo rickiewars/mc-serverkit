@@ -7,6 +7,7 @@ import com.rwconnected.serverkit.api.util.time.MockTimeProvider;
 import com.rwconnected.serverkit.config.Config;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,10 +25,10 @@ public class LoginStreakServiceTest {
     private static final String STREAK_RECURRING_MILESTONE_MESSAGE = "You have reached a periodic milestone!";
     private static final String STREAK_RECURRING_MILESTONE_MESSAGE_2 = "You have reached a second periodic milestone!";
 
-    private static final int DAILY_REWARD = 100;
-    private static final int WEEKLY_REWARD = 300;
-    private static final int MONTHLY_REWARD = 500;
-    private static final int DAY_100_REWARD = 1000;
+    private static final BigInteger DAILY_REWARD = BigInteger.valueOf(100);
+    private static final BigInteger WEEKLY_REWARD = BigInteger.valueOf(300);
+    private static final BigInteger MONTHLY_REWARD = BigInteger.valueOf(500);
+    private static final BigInteger DAY_100_REWARD = BigInteger.valueOf(1000);
 
     private static Date getDummyDate() {
         return new GregorianCalendar(2024, Calendar.SEPTEMBER, 10).getTime();
@@ -240,7 +241,7 @@ public class LoginStreakServiceTest {
             this.player, Config.instance().economy.CurrencyIdentifier()
         );
 
-        assertEquals(0, account.getBalance());
+        assertEquals(BigInteger.ZERO, account.getBalance());
     }
 
     @Test
@@ -257,7 +258,7 @@ public class LoginStreakServiceTest {
             this.player, Config.instance().economy.CurrencyIdentifier()
         );
 
-        assertEquals(DAILY_REWARD + WEEKLY_REWARD, account.getBalance());
+        assertEquals(DAILY_REWARD.add(WEEKLY_REWARD), account.getBalance());
     }
 
     @Test
@@ -274,7 +275,7 @@ public class LoginStreakServiceTest {
             this.player, Config.instance().economy.CurrencyIdentifier()
         );
 
-        assertEquals(DAILY_REWARD + WEEKLY_REWARD + MONTHLY_REWARD, account.getBalance());
+        assertEquals(DAILY_REWARD.add(WEEKLY_REWARD).add(MONTHLY_REWARD), account.getBalance());
     }
 
     @Test
@@ -291,7 +292,7 @@ public class LoginStreakServiceTest {
             this.player, Config.instance().economy.CurrencyIdentifier()
         );
 
-        assertEquals(DAILY_REWARD + DAY_100_REWARD, account.getBalance());
+        assertEquals(DAILY_REWARD.add(DAY_100_REWARD), account.getBalance());
     }
 
     @Test

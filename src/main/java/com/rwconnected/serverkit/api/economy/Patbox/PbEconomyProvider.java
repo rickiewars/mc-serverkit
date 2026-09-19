@@ -1,12 +1,10 @@
 package com.rwconnected.serverkit.api.economy.Patbox;
 
 import com.rwconnected.serverkit.api.economy.EconomyProvider;
-import com.rwconnected.serverkit.api.economy.IAccount;
 import com.rwconnected.serverkit.api.economy.ICurrency;
-import com.rwconnected.serverkit.api.minecraft.player.IPlayer;
 import eu.pb4.common.economy.api.CommonEconomy;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Identifier;
 
 public class PbEconomyProvider extends EconomyProvider {
     MinecraftServer server;

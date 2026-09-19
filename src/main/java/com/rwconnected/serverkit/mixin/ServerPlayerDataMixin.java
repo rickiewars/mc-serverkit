@@ -2,42 +2,42 @@ package com.rwconnected.serverkit.mixin;
 
 import com.rwconnected.serverkit.ServerKit;
 import com.rwconnected.serverkit.api.minecraft.storage.ServerKitPlayerData;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayerEntity.class)
+@Mixin(ServerPlayer.class)
 public abstract class ServerPlayerDataMixin implements ServerKitPlayerData {
-    Identifier loginStreakKey = Identifier.of(ServerKit.MOD_ID, "login_streak");
-    Identifier loginStreakRecordKey = Identifier.of(ServerKit.MOD_ID, "login_streak_record");
-    Identifier lastLoginDateKey = Identifier.of(ServerKit.MOD_ID, "last_login_date");
+    Identifier loginStreakKey = Identifier.fromNamespaceAndPath(ServerKit.MOD_ID, "login_streak");
+    Identifier loginStreakRecordKey = Identifier.fromNamespaceAndPath(ServerKit.MOD_ID, "login_streak_record");
+    Identifier lastLoginDateKey = Identifier.fromNamespaceAndPath(ServerKit.MOD_ID, "last_login_date");
 
     @Unique private int loginStreak = 1;
     @Unique private int loginStreakRecord = 1;
     @Unique private String lastLoginDate = "";
 
-    @Inject(method = "writeCustomData", at = @At("TAIL"))
-    private void writeServerKitData(WriteView view, CallbackInfo ci) {
-        view.putInt(loginStreakKey.toString(), loginStreak);
-        view.putInt(loginStreakRecordKey.toString(), loginStreakRecord);
-        view.putString(lastLoginDateKey.toString(), lastLoginDate);
+    @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
+    private void writeServerKitData(ValueOutput output, CallbackInfo ci) {
+        output.putInt(loginStreakKey.toString(), loginStreak);
+        output.putInt(loginStreakRecordKey.toString(), loginStreakRecord);
+        output.putString(lastLoginDateKey.toString(), lastLoginDate);
     }
 
-    @Inject(method = "readCustomData", at = @At("TAIL"))
-    private void readServerKitData(ReadView view, CallbackInfo ci) {
-        loginStreak = view.getInt(loginStreakKey.toString(), 1);
-        loginStreakRecord = view.getInt(loginStreakRecordKey.toString(), 1);
-        lastLoginDate = view.getString(lastLoginDateKey.toString(), "");
+    @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
+    private void readServerKitData(ValueInput input, CallbackInfo ci) {
+        loginStreak = input.getIntOr(loginStreakKey.toString(), 1);
+        loginStreakRecord = input.getIntOr(loginStreakRecordKey.toString(), 1);
+        lastLoginDate = input.getStringOr(lastLoginDateKey.toString(), "");
     }
 
-    @Inject(method = "copyFrom", at = @At("TAIL"))
-    private void copyServerKitData(ServerPlayerEntity old, boolean alive, CallbackInfo ci) {
+    @Inject(method = "restoreFrom", at = @At("TAIL"))
+    private void copyServerKitData(ServerPlayer old, boolean alive, CallbackInfo ci) {
         this.loginStreak = ((ServerKitPlayerData) old).serverkit_getLoginStreak();
         this.loginStreakRecord = ((ServerKitPlayerData) old).serverkit_getLoginStreakRecord();
         this.lastLoginDate = ((ServerKitPlayerData) old).serverkit_getLastLoginDate();

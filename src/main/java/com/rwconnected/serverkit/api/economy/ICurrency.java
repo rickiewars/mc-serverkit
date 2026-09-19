@@ -1,11 +1,13 @@
 package com.rwconnected.serverkit.api.economy;
 
 import com.rwconnected.serverkit.api.minecraft.player.IPlayer;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+
+import java.math.BigInteger;
 
 public interface ICurrency {
 
     public Identifier getId();
     public IAccount getDefaultAccount(IPlayer<?> player);
-    String formatValue(long value);
+    String formatValue(BigInteger value);
 }

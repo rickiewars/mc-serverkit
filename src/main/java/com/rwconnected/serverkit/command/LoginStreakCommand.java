@@ -16,70 +16,71 @@ import com.rwconnected.serverkit.errors.CommandErrors;
 import com.rwconnected.serverkit.module.Log;
 import com.rwconnected.serverkit.service.LoginStreakService;
 import com.rwconnected.serverkit.util.ModUtils;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
+import java.math.BigInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class LoginStreakCommand {
-    public static void register(CommandDispatcher<ServerCommandSource> serverCommandSourceCommandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
-        serverCommandSourceCommandDispatcher.register(CommandManager.literal("loginStreak")
+    public static void register(CommandDispatcher<CommandSourceStack> serverCommandSourceCommandDispatcher, CommandBuildContext commandBuildContext, Commands.CommandSelection registrationEnvironment) {
+        serverCommandSourceCommandDispatcher.register(Commands.literal("loginStreak")
             .requires(Permission.LOGIN_STREAK.require())
             .executes(ctx -> getStreak(ctx, false))
-            .then(CommandManager.literal("help")
+            .then(Commands.literal("help")
                 .requires(Permission.LOGIN_STREAK_HELP.require())
                 .executes(context -> {
                     Log.source(context, Config.instance().loginStreak.welcomeMessage());
                     return 1;
                 })
-            ).then(CommandManager.literal("get")
+            ).then(Commands.literal("get")
                 .requires(Permission.LOGIN_STREAK_GET.require())
                 .executes(ctx -> getStreak(ctx, false))
-                .then(CommandManager.argument("player", EntityArgumentType.player())
+                .then(Commands.argument("player", EntityArgument.player())
                     .requires(Permission.LOGIN_STREAK_GET_PLAYER.require())
                     .executes(ctx -> getStreak(ctx, true))
                 )
-            ).then(CommandManager.literal("set")
+            ).then(Commands.literal("set")
                 .requires(Permission.LOGIN_STREAK_SET.require())
-                .then(CommandManager.literal("streak")
-                    .then(CommandManager.argument("streak", IntegerArgumentType.integer())
+                .then(Commands.literal("streak")
+                    .then(Commands.argument("streak", IntegerArgumentType.integer())
                         .executes(ctx -> setStreak(ctx, false))
-                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                        .then(Commands.argument("player", EntityArgument.player())
                             .requires(Permission.LOGIN_STREAK_SET_PLAYER.require())
                             .executes(ctx -> setStreak(ctx, true))
                         )
                     )
-                ).then(CommandManager.literal("record")
-                    .then(CommandManager.argument("record", IntegerArgumentType.integer())
+                ).then(Commands.literal("record")
+                    .then(Commands.argument("record", IntegerArgumentType.integer())
                         .executes(ctx -> setRecord(ctx, false))
-                        .then(CommandManager.argument("player", EntityArgumentType.player())
+                        .then(Commands.argument("player", EntityArgument.player())
                             .requires(Permission.LOGIN_STREAK_SET_PLAYER.require())
                             .executes(ctx -> setRecord(ctx, true))
                         )
                     )
                 )
 
-            ).then(CommandManager.literal("milestones")
+            ).then(Commands.literal("milestones")
                 .requires(Permission.LOGIN_STREAK_MILESTONES.require())
                 .executes(LoginStreakCommand::showMilestones)
-            ).then(CommandManager.literal("reward")
+            ).then(Commands.literal("reward")
                 .requires(Permission.LOGIN_STREAK_REWARD.require())
-                .then(CommandManager.argument("player", EntityArgumentType.player())
-                    .then(CommandManager.argument("amount", IntegerArgumentType.integer())
+                .then(Commands.argument("player", EntityArgument.player())
+                    .then(Commands.argument("amount", IntegerArgumentType.integer())
                         .executes(LoginStreakCommand::reward)
                     )
                 )
-            ).then(CommandManager.literal("simulate-new-day")
+            ).then(Commands.literal("simulate-new-day")
                 .requires(Permission.LOGIN_STREAK_TEST.require())
-                .then(CommandManager.argument("player", EntityArgumentType.player())
-                    .then(CommandManager.argument("date", StringArgumentType.string())
+                .then(Commands.argument("player", EntityArgument.player())
+                    .then(Commands.argument("date", StringArgumentType.string())
                         .executes(LoginStreakCommand::simulateNewDay)
                     )
                 )
@@ -88,7 +89,7 @@ public class LoginStreakCommand {
     }
 
     private static int getStreak(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         boolean withTarget
     ) throws CommandSyntaxException {
         Player player = getPlayer(context, withTarget);
@@ -102,7 +103,7 @@ public class LoginStreakCommand {
 
     // Should only be used for debugging purposes or to correct a failure
     private static int setStreak(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         boolean withTarget
     ) throws CommandSyntaxException {
         Player player = getPlayer(context, withTarget);
@@ -113,7 +114,7 @@ public class LoginStreakCommand {
     }
 
     private static int setRecord(
-        CommandContext<ServerCommandSource> context,
+        CommandContext<CommandSourceStack> context,
         boolean withTarget
     ) throws CommandSyntaxException {
         Player player = getPlayer(context, withTarget);
@@ -128,16 +129,16 @@ public class LoginStreakCommand {
     }
 
     private static Player getPlayer(
-        CommandContext<ServerCommandSource> ctx,
+        CommandContext<CommandSourceStack> ctx,
         boolean withTarget
     ) throws CommandSyntaxException {
         return withTarget ? new Player(Objects.requireNonNull(
-                EntityArgumentType.getPlayer(ctx, "player")
+                EntityArgument.getPlayer(ctx, "player")
             )) : new Player(ctx);
     }
 
     private static int showMilestones(
-        CommandContext<ServerCommandSource> context
+        CommandContext<CommandSourceStack> context
     ) throws CommandSyntaxException {
         Player player = new Player(context);
         int record = getService().getRecord(player);
@@ -153,50 +154,50 @@ public class LoginStreakCommand {
             }
         });
 
-        List<MutableText> lines = new ArrayList<>();
+        List<MutableComponent> lines = new ArrayList<>();
         if (!milestones.isEmpty()) {
-            lines.add(Text.literal("Regular login streak milestones:"));
+            lines.add(Component.literal("Regular login streak milestones:"));
             for (Config.LoginStreakConfig.LoginStreakMilestone milestone : milestones) {
                 String checkbox = record >= milestone.days() ? "☑ " : "☐ ";
-                MutableText line = Text.literal(checkbox + milestone.days() + ": " + milestone.formattedReward());
+                MutableComponent line = Component.literal(checkbox + milestone.days() + ": " + milestone.formattedReward());
                 if (record >= milestone.days()) {
-                    line = line.formatted(Formatting.GREEN);
+                    line = line.withStyle(ChatFormatting.GREEN);
                 }
                 lines.add(line);
             }
         }
-        lines.add(Text.literal(""));
+        lines.add(Component.literal(""));
         if (!periodicMilestones.isEmpty()) {
-            lines.add(Text.literal("Periodic login streak milestones:"));
+            lines.add(Component.literal("Periodic login streak milestones:"));
             for (Config.LoginStreakConfig.LoginStreakMilestone milestone : periodicMilestones) {
-                lines.add(Text.literal("- " + milestone.days() + " days: " + milestone.formattedReward()));
+                lines.add(Component.literal("- " + milestone.days() + " days: " + milestone.formattedReward()));
             }
         }
-        lines.add(Text.literal(""));
-        lines.add(Text.literal("Your current streak is " + streak + " days."));
-        lines.add(Text.literal("Your current record is " + record + " days."));
+        lines.add(Component.literal(""));
+        lines.add(Component.literal("Your current streak is " + streak + " days."));
+        lines.add(Component.literal("Your current record is " + record + " days."));
 
         // Send the lines to the player
-        for (MutableText line : lines) {
-            context.getSource().sendFeedback(() -> line,false);
+        for (MutableComponent line : lines) {
+            context.getSource().sendSuccess(() -> line,false);
         }
 
         return 1;
     }
 
     private static int reward(
-        CommandContext<ServerCommandSource> context
+        CommandContext<CommandSourceStack> context
     ) throws CommandSyntaxException {
-        Player player = new Player(EntityArgumentType.getPlayer(context, "player"));
-        final int amount = IntegerArgumentType.getInteger(context, "amount");
-        int result = getService().reward(player, amount);
+        Player player = new Player(EntityArgument.getPlayer(context, "player"));
+        final BigInteger amount = BigInteger.valueOf(IntegerArgumentType.getInteger(context, "amount"));
+        BigInteger result = getService().reward(player, amount);
         Log.source(context, "Rewarded " + player.getName() + " with " + ModUtils.formatCurrency(result));
         return 1;
     }
 
-    private static int simulateNewDay(CommandContext<ServerCommandSource> context) throws CommandSyntaxException {
+    private static int simulateNewDay(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         String dateStr = StringArgumentType.getString(context, "date");
-        Player player = new Player(EntityArgumentType.getPlayer(context, "player"));
+        Player player = new Player(EntityArgument.getPlayer(context, "player"));
 
         try {
             SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");

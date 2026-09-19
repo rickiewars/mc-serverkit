@@ -1,28 +1,27 @@
 package com.rwconnected.serverkit.http.Resources;
 
-import com.rwconnected.serverkit.http.Models.Score;
-import net.minecraft.scoreboard.ScoreboardEntry;
-import net.minecraft.scoreboard.ScoreboardObjective;
-import net.minecraft.scoreboard.ServerScoreboard;
 import com.rwconnected.serverkit.http.Models.Objective;
+import com.rwconnected.serverkit.http.Models.Score;
+import net.minecraft.server.ServerScoreboard;
+import net.minecraft.world.scores.PlayerScoreEntry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class StatisticsResource {
-    public static Score toScore(ScoreboardEntry score) {
-        return new Score(score.name().getString(), score.value());
+    public static Score toScore(PlayerScoreEntry score) {
+        return new Score(score.owner(), score.value());
     }
 
-    public static Objective toObjective(@NotNull ScoreboardObjective objective, ServerScoreboard scoreboard) {
-        List<Score> scores = scoreboard.getScoreboardEntries(objective).stream()
+    public static Objective toObjective(@NotNull net.minecraft.world.scores.Objective objective, ServerScoreboard scoreboard) {
+        List<Score> scores = scoreboard.listPlayerScores(objective).stream()
             .map(StatisticsResource::toScore)
             .collect(Collectors.toList());
 
         return new Objective(
             objective.getName(),
-            objective.getCriterion().getName(),
+            objective.getCriteria().getName(),
             objective.getDisplayName().getString(),
             scores
         );

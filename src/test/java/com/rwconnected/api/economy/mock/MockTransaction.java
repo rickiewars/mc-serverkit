@@ -2,7 +2,7 @@ package com.rwconnected.api.economy.mock;
 
 import com.mojang.brigadier.Message;
 import com.rwconnected.serverkit.api.economy.ITransaction;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class MockTransaction implements ITransaction {
     public static final String MESSAGE_SUCCESS = "Transaction successful";
@@ -28,6 +28,6 @@ public class MockTransaction implements ITransaction {
 
     @Override
     public Message getMessage() {
-        return Text.of(message);
+        return Component.literal(message);
     }
 }
